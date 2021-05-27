@@ -12,7 +12,7 @@ import (
 var (
 	// ErrRootComplexFull is returned when the addition of a new PCI Express
 	// Root would exceed MaxRoots.
-	ErrRootComplexFull = errors.New("the PCI Express root complex is full and cannot accomodate more devices")
+	ErrRootComplexFull = errors.New("the PCI Express root complex is full and cannot accommodate more devices")
 )
 
 // Topology describes the PCI Express device topology for a virtual machine.

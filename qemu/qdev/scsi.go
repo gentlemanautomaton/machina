@@ -19,7 +19,7 @@ const (
 var (
 	// ErrSCSIControllerFull is returned when the addition of a new SCSI disk
 	// would exceed MaxSCSIDevices.
-	ErrSCSIControllerFull = errors.New("the SCSI Controller is full and cannot accomodate more devices")
+	ErrSCSIControllerFull = errors.New("the SCSI Controller is full and cannot accommodate more devices")
 )
 
 // SCSI is a Virtio SCSI Controller device.

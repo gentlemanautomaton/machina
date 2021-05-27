@@ -119,7 +119,7 @@ func (r *Root) AddVirtioNetwork(mac string, netdev qhost.NetDev) (Network, error
 // by the qdev package. Use of the Root.Add* functions are preferred because
 // they take care of bus assignments and are safer for common use cases.
 //
-// It is the caller's responsibilty to properly configure the bus of the
+// It is the caller's responsibility to properly configure the bus of the
 // connected device.
 func (r *Root) Connect(dev Device) error {
 	if r.downstream != nil {

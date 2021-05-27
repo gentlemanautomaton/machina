@@ -17,7 +17,7 @@ const (
 var (
 	// ErrUSBControllerFull is returned when the addition of a new USB device
 	// would exceed MaxUSBPorts.
-	ErrUSBControllerFull = errors.New("the USB Controller is full and cannot accomodate more devices")
+	ErrUSBControllerFull = errors.New("the USB Controller is full and cannot accommodate more devices")
 )
 
 // USB is a PCI Express xHCI Controller device.
