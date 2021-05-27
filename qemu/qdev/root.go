@@ -42,7 +42,7 @@ func (r Root) Driver() Driver {
 	return "ioh3420"
 }
 
-// Driver returns the properties of the PCI Express Root Port device.
+// Properties returns the properties of the PCI Express Root Port device.
 func (r Root) Properties() Properties {
 	props := Properties{
 		{Name: string(r.Driver())},
