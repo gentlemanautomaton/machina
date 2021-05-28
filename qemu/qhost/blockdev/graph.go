@@ -2,7 +2,6 @@ package blockdev
 
 import (
 	"errors"
-	"sync"
 
 	"github.com/gentlemanautomaton/machina/qemu"
 )
@@ -29,15 +28,8 @@ type NodeGraph interface {
 // The zero-value of a graph is ready for use, but it must not be copied
 // by value once a node has been added to it.
 type Graph struct {
-	once   sync.Once
 	list   []Node
 	lookup map[NodeName]int
-}
-
-func (g *Graph) init() {
-	const startingSize = 16
-	g.list = make([]Node, 0, startingSize)
-	g.lookup = make(map[NodeName]int, startingSize)
 }
 
 // Add adds the given node to the node graph.
@@ -45,7 +37,13 @@ func (g *Graph) init() {
 // It returns ErrNodeExists if a node with the same node name already exists
 // in the graph.
 func (g *Graph) Add(node Node) error {
-	g.once.Do(g.init)
+	const startingSize = 16
+	if g.list == nil {
+		g.list = make([]Node, 0, startingSize)
+	}
+	if g.lookup == nil {
+		g.lookup = make(map[NodeName]int, startingSize)
+	}
 	name := node.Name()
 	if _, exists := g.lookup[name]; exists {
 		return ErrNodeExists
