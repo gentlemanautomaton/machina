@@ -3,6 +3,8 @@ package qdev
 import (
 	"errors"
 	"strconv"
+
+	"github.com/gentlemanautomaton/machina/qemu/qhost/chardev"
 )
 
 // https://github.com/qemu/qemu/blob/master/docs/usb2.txt
@@ -75,6 +77,24 @@ func (controller *USB) AddTablet() (USBTablet, error) {
 	return tablet, nil
 }
 
+// AddRedir connects a USB redirection device to the xHCI Controller.
+func (controller *USB) AddRedir(chardev chardev.ID) (USBRedir, error) {
+	if len(controller.devices)+1 > MaxUSBPorts {
+		return USBRedir{}, ErrUSBControllerFull
+	}
+
+	index := len(controller.devices)
+	tablet := USBRedir{
+		id:      controller.id.Downstream(strconv.Itoa(index)),
+		bus:     controller.id,
+		port:    index,
+		chardev: chardev,
+	}
+	controller.devices = append(controller.devices, tablet)
+
+	return tablet, nil
+}
+
 // USBTablet is a USB Tablet device.
 type USBTablet struct {
 	id   ID
@@ -102,9 +122,10 @@ func (tablet USBTablet) Properties() Properties {
 // Documentation:
 // https://www.spice-space.org/usbredir.html
 type USBRedir struct {
-	id   ID
-	bus  ID
-	port int
+	id      ID
+	bus     ID
+	port    int
+	chardev chardev.ID
 }
 
 // Driver returns the driver for the USB Redirection device, usb-redir.
@@ -119,5 +140,6 @@ func (redir USBRedir) Properties() Properties {
 		{Name: "id", Value: string(redir.id)},
 		{Name: "bus", Value: string(redir.bus)},
 		{Name: "port", Value: strconv.Itoa(redir.port)},
+		{Name: "chardev", Value: string(redir.chardev)},
 	}
 }

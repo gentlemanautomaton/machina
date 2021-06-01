@@ -79,6 +79,22 @@ func (r *Root) AddUSB() (*USB, error) {
 	return controller, nil
 }
 
+// AddVirtioSerial connects a PCI Express Virtio Serial controller to the
+// PCI Express Root Port.
+//
+// TODO: Consider naming this AddSerial.
+func (r *Root) AddVirtioSerial() (*Serial, error) {
+	if r.downstream != nil {
+		return nil, ErrDownstreamOccupied
+	}
+	controller := &Serial{
+		id:  r.buses.Allocate("serial"),
+		bus: r.id,
+	}
+	r.downstream = controller
+	return controller, nil
+}
+
 // AddVirtioSCSI connects a PCI Express Virtio SCSI controller to the
 // PCI Express Root Port.
 //
