@@ -42,7 +42,7 @@ func (f File) Connect(graph NodeGraph) (FileNode, error) {
 		return FileNode{}, fmt.Errorf("a nil node graph was provided when creating the \"%s\" file protocol node", f.Name)
 	}
 	if f.Path == "" {
-		return FileNode{}, fmt.Errorf("a nil source was provided when creating the \"%s\" file protocol node", f.Name)
+		return FileNode{}, fmt.Errorf("an empty path was provided when creating the \"%s\" file protocol node", f.Name)
 	}
 	node := FileNode{
 		graph: graph,
