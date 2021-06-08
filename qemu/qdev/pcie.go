@@ -20,11 +20,17 @@ const (
 // BusMap keeps track of index assignments for QEMU device buses.
 type BusMap map[string]int
 
-// Allocate returns the next index for a device on the given bus name.
+// Allocate returns the next ID for a device on the given bus name.
 func (m BusMap) Allocate(name string) ID {
 	index := m[name]
 	m[name]++
 	return ID(name).Downstream(strconv.Itoa(index))
+}
+
+// Count returns the number of devices that have been allocated with the
+// given bus name.
+func (m BusMap) Count(name string) int {
+	return m[name]
 }
 
 // Addr is an address on a PCI bus.

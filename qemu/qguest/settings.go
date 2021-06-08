@@ -7,6 +7,7 @@ type Settings struct {
 	Identity  Identity
 	Processor Processor
 	Memory    Memory
+	Spice     Spice
 	Globals   qemu.Globals
 }
 
@@ -26,6 +27,7 @@ func (s Settings) Options() qemu.Options {
 	}...)
 	opts = append(opts, s.Processor.Options()...)
 	opts = append(opts, s.Memory.Options()...)
+	opts = append(opts, s.Spice.Options()...)
 	opts = append(opts, s.Globals.Options()...)
 
 	return opts
