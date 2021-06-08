@@ -3,6 +3,9 @@ package qhost
 // Script is a path to an executable script on the QEMU host.
 type Script string
 
+// NoScript indicates that no script should be used for the network device.
+const NoScript Script = "no"
+
 // NetDev is a network device on the QEMU host.
 type NetDev interface {
 	ID() ID

@@ -52,7 +52,10 @@ func (r *Resources) NetDevs() []NetDev {
 
 // AddNetworkTap adds a network tap to the host configuration.
 //
-// The tap will bind to the specified host network interface.
+// The newly created tap will have the given network interface name.
+//
+// If up or down are blank, a default script will be run instead. To disable
+// script execution pass the NoScript value.
 func (r *Resources) AddNetworkTap(ifname string, up, down Script) (NetworkTap, error) {
 	index := len(r.netdevs)
 	tap := NetworkTap{
