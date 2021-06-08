@@ -50,12 +50,12 @@ func (opts *Options) Add(typ string, params ...Parameter) {
 // Args returns the command line arguments for invocation of a QEMU virtual
 // machine with the given options.
 func (opts Options) Args() []string {
-	if opts == nil {
+	if len(opts) == 0 {
 		return nil
 	}
 	args := make([]string, 0, len(opts)*2)
 	for _, opt := range opts {
-		if opt.Type != "" {
+		if opt.Valid() {
 			args = append(args, "-"+opt.Type)
 			if params := opt.Parameters.String(); params != "" {
 				args = append(args, params)
