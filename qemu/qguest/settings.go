@@ -7,6 +7,7 @@ type Settings struct {
 	Identity  Identity
 	Processor Processor
 	Memory    Memory
+	Globals   qemu.Globals
 }
 
 // Options returns a set of QEMU virtual machine options for implementing
@@ -16,15 +17,16 @@ func (s Settings) Options() qemu.Options {
 
 	opts = append(opts, s.Identity.Options()...)
 	opts.Add("enable-kvm")
+	opts.Add("nodefaults")
+	opts.Add("nographic")
 	opts.Add("machine", qemu.Parameters{
 		{Name: "type", Value: "q35"},
-		{Name: "accel", Value: "kvm"},
+		//{Name: "accel", Value: "kvm"},
+		{Name: "vmport", Value: "off"},
 	}...)
 	opts = append(opts, s.Processor.Options()...)
 	opts = append(opts, s.Memory.Options()...)
-
-	opts.Add("nodefaults")
-	opts.Add("nographic")
+	opts = append(opts, s.Globals.Options()...)
 
 	return opts
 }

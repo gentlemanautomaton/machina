@@ -106,12 +106,12 @@ func Example() {
 	// -uuid 00000000-0000-0000-0000-000000000001 \
 	// -name test-machine \
 	// -enable-kvm \
-	// -machine type=q35,accel=kvm \
+	// -nodefaults \
+	// -nographic \
+	// -machine type=q35 \
 	// -cpu host \
 	// -smp sockets=1,cores=24 \
 	// -m size=2G \
-	// -nodefaults \
-	// -nographic \
 	// -object iothread,id=iothread.0 \
 	// -blockdev driver=file,node-name=test-os-file,filename=~/test-os.raw \
 	// -blockdev driver=raw,node-name=test-os,file=test-os-file \
