@@ -37,6 +37,6 @@ func ExampleNetwork() {
 	}
 
 	// Output:
-	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=0.0,multifunction=on
+	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=1.0,multifunction=on
 	// -device virtio-net-pci,bus=pcie.1.0,mac=00:00:00:00:00:00,netdev=net.0
 }

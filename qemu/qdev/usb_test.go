@@ -33,7 +33,7 @@ func ExampleUSB() {
 	}
 
 	// Output:
-	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=0.0,multifunction=on
-	// -device qemu-xhci,id=usb.0,bus=pcie.1.0,p2=4,p3=4
-	// -device usb-tablet,id=usb.0.0,bus=usb.0,port=0
+	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=1.0,multifunction=on
+	// -device qemu-xhci,id=usb,bus=pcie.1.0,p2=4,p3=4
+	// -device usb-tablet,id=usb.0.1,bus=usb.0,port=1
 }

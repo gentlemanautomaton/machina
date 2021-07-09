@@ -87,9 +87,11 @@ func (r *Root) AddUSB() (*USB, error) {
 	if r.downstream != nil {
 		return nil, ErrDownstreamOccupied
 	}
+	const prefix = "usb"
 	controller := &USB{
-		id:  r.buses.Allocate("usb"),
-		bus: r.id,
+		prefix: prefix,
+		id:     r.buses.Allocate(prefix),
+		bus:    r.id,
 	}
 	r.downstream = controller
 	return controller, nil
@@ -103,9 +105,11 @@ func (r *Root) AddVirtioSerial() (*Serial, error) {
 	if r.downstream != nil {
 		return nil, ErrDownstreamOccupied
 	}
+	const prefix = "serial"
 	controller := &Serial{
-		id:  r.buses.Allocate("serial"),
-		bus: r.id,
+		prefix: prefix,
+		id:     r.buses.Allocate(prefix),
+		bus:    r.id,
 	}
 	r.downstream = controller
 	return controller, nil
@@ -119,8 +123,10 @@ func (r *Root) AddVirtioSCSI(thread qhost.IOThread) (*SCSI, error) {
 	if r.downstream != nil {
 		return nil, ErrDownstreamOccupied
 	}
+	const prefix = "scsi"
 	controller := &SCSI{
-		id:       r.buses.Allocate("scsi"),
+		prefix:   prefix,
+		id:       r.buses.Allocate(prefix),
 		bus:      r.id,
 		iothread: thread.ID(),
 	}

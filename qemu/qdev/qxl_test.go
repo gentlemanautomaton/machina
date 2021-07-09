@@ -31,8 +31,8 @@ func ExampleQXL() {
 	}
 
 	// Output:
-	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=0.0,multifunction=on
+	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=1.0,multifunction=on
 	// -device qxl-vga,id=qxl.0,bus=pcie.1.0
-	// -device ioh3420,id=pcie.1.1,chassis=0,bus=pcie.0,addr=0.1
+	// -device ioh3420,id=pcie.1.1,chassis=1,bus=pcie.0,addr=1.1
 	// -device qxl,id=qxl.1,bus=pcie.1.1
 }

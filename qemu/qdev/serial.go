@@ -21,6 +21,7 @@ var (
 
 // Serial is a Virtio Serial Controller device.
 type Serial struct {
+	prefix  ID
 	id      ID
 	bus     ID
 	devices []Device
@@ -36,7 +37,7 @@ func (controller *Serial) Driver() Driver {
 func (controller *Serial) Properties() Properties {
 	props := Properties{
 		{Name: string(controller.Driver())},
-		{Name: "id", Value: string(controller.id)},
+		{Name: "id", Value: string(controller.prefix)},
 		{Name: "bus", Value: string(controller.bus)},
 	}
 	return props
@@ -49,7 +50,10 @@ func (controller *Serial) Devices() []Device {
 
 // AddPort connects a Serial Port device to the Virtio Serial Controller.
 func (controller *Serial) AddPort(chardev chardev.ID, name string) (SerialPort, error) {
-	if len(controller.devices)+1 > MaxSerialPorts {
+	// Virtio serial port 0 is reserved for the onboard serial port on Q35 machines
+	const reserved = 1
+
+	if len(controller.devices)+reserved+1 > MaxSerialPorts {
 		return SerialPort{}, ErrSerialControllerFull
 	}
 
@@ -57,7 +61,7 @@ func (controller *Serial) AddPort(chardev chardev.ID, name string) (SerialPort, 
 	port := SerialPort{
 		id:      controller.id.Downstream(strconv.Itoa(index)),
 		bus:     controller.id,
-		port:    index,
+		port:    index + reserved,
 		chardev: chardev,
 		name:    name,
 	}

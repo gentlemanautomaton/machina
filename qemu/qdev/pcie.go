@@ -18,6 +18,20 @@ const (
 )
 
 // BusMap keeps track of index assignments for QEMU device buses.
+//
+// The QEMU machinery forcefully adds a numeric suffix such as ".0" to the
+// ID of many controllers in order to form the controller's bus address
+// used by downstream devices. This seems to contradict the behavior of the
+// PCI Express bus, which uses the controller's ID directly as the bus
+// address.
+//
+// When declaring controller identifiers to QEMU, many controllers must supply
+// their ID prefix (such as "usb") and then anticipate the actual bus
+// address assignment that will be assigned by QEMU.
+//
+// TODO: Find someone, somewhere, that can actually explain QEMU's bus
+// addresss naming requirements and conventions. Thus far, no
+// documentation on this topic has been found.
 type BusMap map[string]int
 
 // Allocate returns the next ID for a device on the given bus name.

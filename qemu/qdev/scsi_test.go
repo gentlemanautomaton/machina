@@ -69,7 +69,7 @@ func ExampleSCSI() {
 	}
 
 	// Output:
-	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=0.0,multifunction=on
-	// -device virtio-scsi-pci,id=scsi.0,bus=pcie.1.0,iothread=iothread.0,num_queues=4
+	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=1.0,multifunction=on
+	// -device virtio-scsi-pci,id=scsi,bus=pcie.1.0,iothread=iothread.0,num_queues=4
 	// -device scsi-hd,id=scsi.0.0,bus=scsi.0,channel=0,scsi-id=0,lun=0,drive=testdrive
 }

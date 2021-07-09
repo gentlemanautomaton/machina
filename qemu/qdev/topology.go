@@ -44,16 +44,18 @@ func (t *Topology) AddRoot() (*Root, error) {
 		t.buses = make(BusMap)
 	}
 
-	if len(t.roots)+1 > MaxMultifunctionDevices {
+	if len(t.roots)+1 > MaxRoots {
 		return nil, ErrRootComplexFull
 	}
 
+	const startingSlot = 1
 	index := len(t.roots)
-	addr := Addr{index / MaxMultifunctionDevices, index % MaxMultifunctionDevices}
+	addr := Addr{Slot: index/MaxMultifunctionDevices + startingSlot, Function: index % MaxMultifunctionDevices}
 	root := Root{
-		id:    ID(fmt.Sprintf("pcie.%d.%d", addr.Slot+1, addr.Function)),
-		addr:  addr,
-		buses: t.buses,
+		id:      ID(fmt.Sprintf("pcie.%d.%d", addr.Slot, addr.Function)),
+		chassis: index,
+		addr:    addr,
+		buses:   t.buses,
 	}
 	t.roots = append(t.roots, root)
 

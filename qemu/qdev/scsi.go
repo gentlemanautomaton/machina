@@ -24,6 +24,7 @@ var (
 
 // SCSI is a Virtio SCSI Controller device.
 type SCSI struct {
+	prefix    ID
 	id        ID
 	bus       ID
 	numQueues int
@@ -45,7 +46,7 @@ func (controller *SCSI) Properties() Properties {
 	}
 	return Properties{
 		{Name: string(controller.Driver())},
-		{Name: "id", Value: string(controller.id)},
+		{Name: "id", Value: string(controller.prefix)},
 		{Name: "bus", Value: string(controller.bus)},
 		{Name: "iothread", Value: string(controller.iothread)},
 		{Name: "num_queues", Value: strconv.Itoa(queues)},
@@ -59,11 +60,11 @@ func (controller *SCSI) Devices() []Device {
 
 // AddDisk connects a SCSI HD device to the Virtio SCSI Controller.
 func (controller *SCSI) AddDisk(bdev blockdev.Node) (SCSIHD, error) {
-	if len(controller.devices)+1 > MaxSCSIDevices {
-		return SCSIHD{}, ErrSCSIControllerFull
+	index, err := controller.allocate()
+	if err != nil {
+		return SCSIHD{}, err
 	}
 
-	index := len(controller.devices)
 	disk := SCSIHD{
 		id:       controller.id.Downstream(strconv.Itoa(index)),
 		bus:      controller.id,
@@ -79,11 +80,11 @@ func (controller *SCSI) AddDisk(bdev blockdev.Node) (SCSIHD, error) {
 
 // AddCD connects a SCSI CD-ROM device to the Virtio SCSI Controller.
 func (controller *SCSI) AddCD(bdev blockdev.Node) (SCSICD, error) {
-	if len(controller.devices)+1 > MaxSCSIDevices {
-		return SCSICD{}, ErrSCSIControllerFull
+	index, err := controller.allocate()
+	if err != nil {
+		return SCSICD{}, err
 	}
 
-	index := len(controller.devices)
 	cd := SCSICD{
 		id:       controller.id.Downstream(strconv.Itoa(index)),
 		bus:      controller.id,
@@ -92,6 +93,14 @@ func (controller *SCSI) AddCD(bdev blockdev.Node) (SCSICD, error) {
 	controller.devices = append(controller.devices, cd)
 
 	return cd, nil
+}
+
+func (controller *SCSI) allocate() (index int, err error) {
+	if len(controller.devices)+1 > MaxSCSIDevices {
+		return 0, ErrSCSIControllerFull
+	}
+
+	return len(controller.devices), nil
 }
 
 // SCSIHD is a SCSI hard disk device.

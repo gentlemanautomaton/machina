@@ -24,6 +24,7 @@ var (
 
 // USB is a PCI Express xHCI Controller device.
 type USB struct {
+	prefix  ID
 	id      ID
 	bus     ID
 	devices []Device
@@ -48,7 +49,7 @@ func (controller *USB) Properties() Properties {
 	}
 	return Properties{
 		{Name: string(controller.Driver())},
-		{Name: "id", Value: string(controller.id)},
+		{Name: "id", Value: string(controller.prefix)},
 		{Name: "bus", Value: string(controller.bus)},
 		{Name: "p2", Value: strconv.Itoa(ports)}, // Number of ports supporting USB 1/2
 		{Name: "p3", Value: strconv.Itoa(ports)}, // Number of ports supporting USB 3
@@ -62,11 +63,11 @@ func (controller *USB) Devices() []Device {
 
 // AddTablet connects a USB tablet device to the xHCI Controller.
 func (controller *USB) AddTablet() (USBTablet, error) {
-	if len(controller.devices)+1 > MaxUSBPorts {
-		return USBTablet{}, ErrUSBControllerFull
+	index, err := controller.allocate()
+	if err != nil {
+		return USBTablet{}, err
 	}
 
-	index := len(controller.devices)
 	tablet := USBTablet{
 		id:   controller.id.Downstream(strconv.Itoa(index)),
 		bus:  controller.id,
@@ -79,11 +80,11 @@ func (controller *USB) AddTablet() (USBTablet, error) {
 
 // AddRedir connects a USB redirection device to the xHCI Controller.
 func (controller *USB) AddRedir(chardev chardev.ID) (USBRedir, error) {
-	if len(controller.devices)+1 > MaxUSBPorts {
-		return USBRedir{}, ErrUSBControllerFull
+	index, err := controller.allocate()
+	if err != nil {
+		return USBRedir{}, err
 	}
 
-	index := len(controller.devices)
 	tablet := USBRedir{
 		id:      controller.id.Downstream(strconv.Itoa(index)),
 		bus:     controller.id,
@@ -93,6 +94,16 @@ func (controller *USB) AddRedir(chardev chardev.ID) (USBRedir, error) {
 	controller.devices = append(controller.devices, tablet)
 
 	return tablet, nil
+}
+
+func (controller *USB) allocate() (index int, err error) {
+	if len(controller.devices)+1 > MaxUSBPorts {
+		return 0, ErrUSBControllerFull
+	}
+
+	const startingIndex = 1
+
+	return len(controller.devices) + startingIndex, nil
 }
 
 // USBTablet is a USB Tablet device.
