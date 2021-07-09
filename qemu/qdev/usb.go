@@ -227,6 +227,26 @@ func (controller *USBAttachedSCSI) AddDisk(bdev blockdev.Node) (SCSIHD, error) {
 	return disk, nil
 }
 
+// AddCD connects a SCSI CD-ROM device to the Virtio SCSI Controller.
+func (controller *USBAttachedSCSI) AddCD(bdev blockdev.Node) (SCSICD, error) {
+	index, err := controller.allocate()
+	if err != nil {
+		return SCSICD{}, err
+	}
+
+	cd := SCSICD{
+		id:       controller.id.Downstream(strconv.Itoa(index)),
+		bus:      controller.id,
+		channel:  0,
+		scsiID:   0,
+		lun:      index,
+		blockdev: bdev.Name(),
+	}
+	controller.devices = append(controller.devices, cd)
+
+	return cd, nil
+}
+
 func (controller *USBAttachedSCSI) allocate() (index int, err error) {
 	if len(controller.devices)+1 > MaxSCSIDevices {
 		return 0, ErrSCSIControllerFull
