@@ -92,6 +92,6 @@ func ExampleUSBAttachedSCSI() {
 	// -blockdev driver=file,node-name=uas-disk,read-only=on,filename=uas-disk.iso
 	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=1.0,multifunction=on
 	// -device qemu-xhci,id=usb,bus=pcie.1.0,p2=4,p3=4
-	// -device usb-uas,id=uas,bus=usb.0
+	// -device usb-uas,id=uas,bus=usb.0,port=1
 	// -device scsi-hd,id=uas.0.0,bus=uas.0,channel=0,scsi-id=0,lun=0,drive=uas-disk
 }

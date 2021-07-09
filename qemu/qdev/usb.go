@@ -101,7 +101,8 @@ func (controller *USB) AddRedir(chardev chardev.ID) (USBRedir, error) {
 
 // AddSCSI connects a USB Attached SCSI controller to the xHCI Controller.
 func (controller *USB) AddSCSI() (*USBAttachedSCSI, error) {
-	if _, err := controller.allocate(); err != nil {
+	index, err := controller.allocate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -110,6 +111,7 @@ func (controller *USB) AddSCSI() (*USBAttachedSCSI, error) {
 		prefix: prefix,
 		id:     controller.buses.Allocate(prefix),
 		bus:    controller.id,
+		port:   index,
 	}
 	controller.devices = append(controller.devices, uas)
 
@@ -181,6 +183,7 @@ type USBAttachedSCSI struct {
 	prefix  ID
 	id      ID
 	bus     ID
+	port    int
 	devices []Device
 }
 
@@ -195,6 +198,7 @@ func (controller *USBAttachedSCSI) Properties() Properties {
 		{Name: string(controller.Driver())},
 		{Name: "id", Value: string(controller.prefix)},
 		{Name: "bus", Value: string(controller.bus)},
+		{Name: "port", Value: strconv.Itoa(controller.port)},
 	}
 }
 
