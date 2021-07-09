@@ -4,10 +4,12 @@ import (
 	"errors"
 	"strconv"
 
+	"github.com/gentlemanautomaton/machina/qemu/qhost/blockdev"
 	"github.com/gentlemanautomaton/machina/qemu/qhost/chardev"
 )
 
 // https://github.com/qemu/qemu/blob/master/docs/usb2.txt
+// https://github.com/qemu/qemu/blob/master/docs/usb-storage.txt
 // https://www.kraxel.org/blog/2018/08/qemu-usb-tips/
 
 const (
@@ -27,6 +29,7 @@ type USB struct {
 	prefix  ID
 	id      ID
 	bus     ID
+	buses   BusMap
 	devices []Device
 }
 
@@ -96,6 +99,23 @@ func (controller *USB) AddRedir(chardev chardev.ID) (USBRedir, error) {
 	return tablet, nil
 }
 
+// AddSCSI connects a USB Attached SCSI controller to the xHCI Controller.
+func (controller *USB) AddSCSI() (*USBAttachedSCSI, error) {
+	if _, err := controller.allocate(); err != nil {
+		return nil, err
+	}
+
+	const prefix = "uas"
+	uas := &USBAttachedSCSI{
+		prefix: prefix,
+		id:     controller.buses.Allocate(prefix),
+		bus:    controller.id,
+	}
+	controller.devices = append(controller.devices, uas)
+
+	return uas, nil
+}
+
 func (controller *USB) allocate() (index int, err error) {
 	if len(controller.devices)+1 > MaxUSBPorts {
 		return 0, ErrUSBControllerFull
@@ -153,4 +173,60 @@ func (redir USBRedir) Properties() Properties {
 		{Name: "port", Value: strconv.Itoa(redir.port)},
 		{Name: "chardev", Value: string(redir.chardev)},
 	}
+}
+
+// USBAttachedSCSI is a USB device that acts as a SCSI controller using
+// the USB Attached SCSI protocol.
+type USBAttachedSCSI struct {
+	prefix  ID
+	id      ID
+	bus     ID
+	devices []Device
+}
+
+// Driver returns the driver for the USB Attached SCSI device, usb-uas.
+func (controller *USBAttachedSCSI) Driver() Driver {
+	return "usb-uas"
+}
+
+// Properties returns the properties of the USB Redirection device.
+func (controller *USBAttachedSCSI) Properties() Properties {
+	return Properties{
+		{Name: string(controller.Driver())},
+		{Name: "id", Value: string(controller.prefix)},
+		{Name: "bus", Value: string(controller.bus)},
+	}
+}
+
+// Devices returns all of the SCSI devices attached to the controller.
+func (controller *USBAttachedSCSI) Devices() []Device {
+	return controller.devices
+}
+
+// AddDisk connects a SCSI HD device to the USB SCSI Controller.
+func (controller *USBAttachedSCSI) AddDisk(bdev blockdev.Node) (SCSIHD, error) {
+	index, err := controller.allocate()
+	if err != nil {
+		return SCSIHD{}, err
+	}
+
+	disk := SCSIHD{
+		id:       controller.id.Downstream(strconv.Itoa(index)),
+		bus:      controller.id,
+		channel:  0,
+		scsiID:   0,
+		lun:      index,
+		blockdev: bdev.Name(),
+	}
+	controller.devices = append(controller.devices, disk)
+
+	return disk, nil
+}
+
+func (controller *USBAttachedSCSI) allocate() (index int, err error) {
+	if len(controller.devices)+1 > MaxSCSIDevices {
+		return 0, ErrSCSIControllerFull
+	}
+
+	return len(controller.devices), nil
 }

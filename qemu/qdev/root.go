@@ -76,6 +76,7 @@ func (r *Root) AddUSB() (*USB, error) {
 		prefix: prefix,
 		id:     r.buses.Allocate(prefix),
 		bus:    r.id,
+		buses:  r.buses,
 	}
 	r.downstream = controller
 	return controller, nil
