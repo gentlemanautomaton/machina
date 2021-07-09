@@ -88,6 +88,9 @@ func (controller *SCSI) AddCD(bdev blockdev.Node) (SCSICD, error) {
 	cd := SCSICD{
 		id:       controller.id.Downstream(strconv.Itoa(index)),
 		bus:      controller.id,
+		channel:  0,
+		scsiID:   0,
+		lun:      index,
 		blockdev: bdev.Name(),
 	}
 	controller.devices = append(controller.devices, cd)
@@ -135,6 +138,9 @@ func (disk SCSIHD) Properties() Properties {
 type SCSICD struct {
 	id       ID
 	bus      ID
+	channel  int
+	scsiID   int
+	lun      int
 	blockdev blockdev.NodeName
 }
 
@@ -149,6 +155,9 @@ func (cd SCSICD) Properties() Properties {
 		{Name: string(cd.Driver())},
 		{Name: "id", Value: string(cd.id)},
 		{Name: "bus", Value: string(cd.bus)},
+		{Name: "channel", Value: strconv.Itoa(cd.channel)},
+		{Name: "scsi-id", Value: strconv.Itoa(cd.scsiID)},
+		{Name: "lun", Value: strconv.Itoa(cd.lun)},
 		{Name: "drive", Value: string(cd.blockdev)},
 	}
 }
