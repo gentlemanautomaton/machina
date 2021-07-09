@@ -5,7 +5,7 @@ package qdev
 // QXL is a QXL display device.
 type QXL struct {
 	id        ID
-	bus       ID
+	addr      Addr
 	secondary bool
 }
 
@@ -23,7 +23,11 @@ func (qxl QXL) Properties() Properties {
 	props := Properties{
 		{Name: string(qxl.Driver())},
 		{Name: "id", Value: string(qxl.id)},
-		{Name: "bus", Value: string(qxl.bus)},
+		{Name: "bus", Value: "pcie.0"},
+		{Name: "addr", Value: qxl.addr.String()},
+	}
+	if qxl.addr.Function == 0 {
+		props.Add("multifunction", "on")
 	}
 	return props
 }

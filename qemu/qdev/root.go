@@ -57,22 +57,6 @@ func (r Root) Properties() Properties {
 	return props
 }
 
-// AddQXL connects a PCI Express QXL display device to the PCI Express
-// Root Port.
-func (r *Root) AddQXL() (*QXL, error) {
-	if r.downstream != nil {
-		return nil, ErrDownstreamOccupied
-	}
-	secondary := r.buses.Count("qxl") > 0
-	qxl := &QXL{
-		id:        r.buses.Allocate("qxl"),
-		bus:       r.id,
-		secondary: secondary,
-	}
-	r.downstream = qxl
-	return qxl, nil
-}
-
 // Downstream returns the downstream device connected to the PCI Express root
 // port.
 //

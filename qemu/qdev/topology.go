@@ -25,8 +25,8 @@ var (
 // TODO: Consider representing the PCI Express Root Complex with its own
 // struct.
 type Topology struct {
-	roots []Root
-	buses BusMap
+	devices []Device
+	buses   BusMap
 }
 
 // AddRoot adds a new PCI Express Root Port device to the PCI Express Root
@@ -37,37 +37,50 @@ type Topology struct {
 //
 // TODO: Consider allowing the caller to supply a preferred bus address.
 func (t *Topology) AddRoot() (*Root, error) {
-	if t.roots == nil {
-		t.roots = make([]Root, 0, MaxRoots)
-	}
-	if t.buses == nil {
-		t.buses = make(BusMap)
-	}
-
-	if len(t.roots)+1 > MaxRoots {
-		return nil, ErrRootComplexFull
+	index, err := t.allocate()
+	if err != nil {
+		return nil, err
 	}
 
 	const startingSlot = 1
-	index := len(t.roots)
 	addr := Addr{Slot: index/MaxMultifunctionDevices + startingSlot, Function: index % MaxMultifunctionDevices}
-	root := Root{
+	root := &Root{
 		id:      ID(fmt.Sprintf("pcie.%d.%d", addr.Slot, addr.Function)),
 		chassis: index,
 		addr:    addr,
 		buses:   t.buses,
 	}
-	t.roots = append(t.roots, root)
+	t.devices = append(t.devices, root)
 
-	return &t.roots[index], nil
+	return root, nil
+}
+
+// AddQXL connects a PCI Express QXL display device to the PCI Express
+// Root Port.
+func (t *Topology) AddQXL() (*QXL, error) {
+	index, err := t.allocate()
+	if err != nil {
+		return nil, err
+	}
+
+	const startingSlot = 1
+	addr := Addr{Slot: index/MaxMultifunctionDevices + startingSlot, Function: index % MaxMultifunctionDevices}
+	secondary := t.buses.Count("qxl") > 0
+	qxl := &QXL{
+		id:        t.buses.Allocate("qxl"),
+		addr:      addr,
+		secondary: secondary,
+	}
+	t.devices = append(t.devices, qxl)
+	return qxl, nil
 }
 
 // Devices returns all of the PCI Express Roots within the PCI Express Root
 // Complex.
 func (t *Topology) Devices() []Device {
-	devices := make([]Device, 0, len(t.roots))
-	for i := range t.roots {
-		devices = append(devices, &t.roots[i])
+	devices := make([]Device, 0, len(t.devices))
+	for i := range t.devices {
+		devices = append(devices, t.devices[i])
 	}
 	return devices
 }
@@ -90,4 +103,19 @@ func (t *Topology) Options() qemu.Options {
 	})
 
 	return opts
+}
+
+func (t *Topology) allocate() (index int, err error) {
+	if t.devices == nil {
+		t.devices = make([]Device, 0, MaxRoots)
+	}
+	if t.buses == nil {
+		t.buses = make(BusMap)
+	}
+
+	if len(t.devices)+1 > MaxRoots {
+		return -1, ErrRootComplexFull
+	}
+
+	return len(t.devices), nil
 }
