@@ -99,6 +99,24 @@ func (controller *USB) AddRedir(chardev chardev.ID) (USBRedir, error) {
 	return tablet, nil
 }
 
+// AddRedir connects a USB redirection device to the xHCI Controller.
+func (controller *USB) AddStorage(bdev blockdev.Node) (USBStorage, error) {
+	index, err := controller.allocate()
+	if err != nil {
+		return USBStorage{}, err
+	}
+
+	disk := USBStorage{
+		id:       controller.id.Downstream(strconv.Itoa(index)),
+		bus:      controller.id,
+		port:     index,
+		blockdev: bdev.Name(),
+	}
+	controller.devices = append(controller.devices, disk)
+
+	return disk, nil
+}
+
 // AddSCSI connects a USB Attached SCSI controller to the xHCI Controller.
 func (controller *USB) AddSCSI() (*USBAttachedSCSI, error) {
 	index, err := controller.allocate()
@@ -174,6 +192,33 @@ func (redir USBRedir) Properties() Properties {
 		{Name: "bus", Value: string(redir.bus)},
 		{Name: "port", Value: strconv.Itoa(redir.port)},
 		{Name: "chardev", Value: string(redir.chardev)},
+	}
+}
+
+// USBStorage is a USB Storage device.
+//
+// Documentation:
+// https://www.spice-space.org/usbredir.html
+type USBStorage struct {
+	id       ID
+	bus      ID
+	port     int
+	blockdev blockdev.NodeName
+}
+
+// Driver returns the driver for the USB Redirection device, usb-redir.
+func (redir USBStorage) Driver() Driver {
+	return "usb-storage"
+}
+
+// Properties returns the properties of the USB Redirection device.
+func (redir USBStorage) Properties() Properties {
+	return Properties{
+		{Name: string(redir.Driver())},
+		{Name: "id", Value: string(redir.id)},
+		{Name: "bus", Value: string(redir.bus)},
+		{Name: "port", Value: strconv.Itoa(redir.port)},
+		{Name: "drive", Value: string(redir.blockdev)},
 	}
 }
 
