@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gentlemanautomaton/machina/qemu"
+	"github.com/gentlemanautomaton/machina/qemu/qhost/blockdev"
 )
 
 // https://github.com/qemu/qemu/blob/master/docs/qdev-device-use.txt
@@ -26,6 +27,7 @@ var (
 // struct.
 type Topology struct {
 	devices []Device
+	sata    int
 	buses   BusMap
 }
 
@@ -73,6 +75,27 @@ func (t *Topology) AddQXL() (*QXL, error) {
 	}
 	t.devices = append(t.devices, qxl)
 	return qxl, nil
+}
+
+// AddCDROM connects a SATA CD-ROM device to the AHCI bus built into the
+// q35 machine's ICH9 controller.
+func (t *Topology) AddCDROM(bdev blockdev.Node) (SATACD, error) {
+	if t.sata+1 > MaxSATADevices {
+		return SATACD{}, ErrSATAFull
+	}
+
+	// On the q35 machine the built-in AHCI bus is named ide.1
+	// https://bugzilla.redhat.com/show_bug.cgi?id=1368300
+	cd := SATACD{
+		id:       t.buses.Allocate("sata"),
+		bus:      "ide.1",
+		blockdev: bdev.Name(),
+	}
+	t.devices = append(t.devices, cd)
+
+	t.sata++
+
+	return cd, nil
 }
 
 // Devices returns all of the PCI Express Roots within the PCI Express Root
