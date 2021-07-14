@@ -136,6 +136,24 @@ func (r *Root) AddVirtioNetwork(mac string, netdev qhost.NetDev) (Network, error
 	return network, nil
 }
 
+// AddVFIO connects a PCI device on the host to the PCI Express Root Port.
+//
+// The connection is made with the Virtual Function I/O framework. It relies
+// on an I/O Memory Management Unit on the host, which allows the device
+// to be passed through while isolating the guest from the host.
+func (r *Root) AddVFIO(device qhost.SystemDevicePath) (VFIO, error) {
+	if r.downstream != nil {
+		return VFIO{}, ErrDownstreamOccupied
+	}
+	vfio := VFIO{
+		id:     r.buses.Allocate("vfio"),
+		bus:    r.id,
+		device: device,
+	}
+	r.downstream = vfio
+	return vfio, nil
+}
+
 // Connect connects a device to the PCI Express Root Port.
 //
 // This function should only be used for custom devices not already supplied
