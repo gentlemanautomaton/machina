@@ -26,8 +26,8 @@ func (s Settings) Options() qemu.Options {
 		params := qemu.Parameters{
 			{Name: "type", Value: "q35"},
 			//{Name: "accel", Value: "kvm"},
-			{Name: "vmport", Value: "off"},
 		}
+		params = append(params, s.Spice.MachineParameters()...)
 		params = append(params, s.Firmware.MachineParameters()...)
 		opts.Add("machine", params...)
 	}

@@ -17,6 +17,18 @@ type Spice struct {
 	DisableFileTransfer bool
 }
 
+// MachineParameters returns a set of machine parameters for spice.
+func (s Spice) MachineParameters() qemu.Parameters {
+	if s.Enabled {
+		// Disable vmport emulation when using spice, because vmport emulation
+		// interferes with mouse input over spice.
+		//
+		// https://listman.redhat.com/archives/libvir-list/2015-April/msg00000.html
+		return qemu.Parameters{{Name: "vmport", Value: "off"}}
+	}
+	return nil
+}
+
 // Parameters returns the parameters used for configuring spice.
 func (s Spice) Parameters() qemu.Parameters {
 	var params qemu.Parameters
