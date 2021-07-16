@@ -13,3 +13,18 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# ISO files
+*.iso
+
+# Firmware files
+*.bin
+
+# Configuration files
+*.json
+
+# Reference text files
+*.txt
+
+# Linux command binary
+cmd/machina/machina
