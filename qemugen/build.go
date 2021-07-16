@@ -1,0 +1,84 @@
+package qemugen
+
+import (
+	"github.com/gentlemanautomaton/machina"
+	"github.com/gentlemanautomaton/machina/qemu/qdev"
+	"github.com/gentlemanautomaton/machina/qemu/qguest"
+	"github.com/gentlemanautomaton/machina/qemu/qvm"
+)
+
+// Build prepares a QEMU virtual machine definition for the given machina
+// machine and system configuration.
+func Build(m machina.Machine, sys machina.System) (qvm.Definition, error) {
+	def, err := machina.Build(m, sys)
+	if err != nil {
+		return qvm.Definition{}, err
+	}
+
+	vm := qvm.Definition{}
+	controllers := qdev.NewControllerMap(&vm.Topology)
+	target := Target{VM: &vm, Controllers: controllers}
+
+	if err := applyDefaults(&vm); err != nil {
+		return qvm.Definition{}, err
+	}
+	if err := applyIdentity(m, &vm); err != nil {
+		return qvm.Definition{}, err
+	}
+	if err := applyFirmware(m.Info(), def, sys.Storage, target); err != nil {
+		return qvm.Definition{}, err
+	}
+	if err := applyAttributes(def.Attributes, target); err != nil {
+		return qvm.Definition{}, err
+	}
+	if err := applyVolumes(m.Info(), def.Volumes, sys.Storage, target); err != nil {
+		return qvm.Definition{}, err
+	}
+	if err := applyConnections(m.Name, def.Connections, sys.Network, target); err != nil {
+		return qvm.Definition{}, err
+	}
+	if err := applyDevices(def.Devices, sys.MediatedDevices, target); err != nil {
+		return qvm.Definition{}, err
+	}
+
+	return vm, nil
+}
+
+func applyDefaults(vm *qvm.Definition) error {
+	// Clock settings
+	vm.Settings.Clock.Base = qguest.ClockBaseUTC
+	vm.Settings.Clock.Isolation = qguest.ClockIsolationHost
+	vm.Settings.Clock.DriftFix = qguest.ClockDriftFixSlew
+
+	return nil
+}
+
+func applyAttributes(attrs machina.Attributes, target Target) error {
+	// Apply CPU attributes
+	if sockets := attrs.CPU.Sockets; sockets > 0 {
+		target.VM.Settings.Processor.Sockets = sockets
+	}
+	if cores := attrs.CPU.Cores; cores > 0 {
+		target.VM.Settings.Processor.Cores = cores
+	}
+	if attrs.Entitlements.Enabled {
+		target.VM.Settings.Processor.HyperV = true
+	}
+
+	// Apply memory attributes
+	if ram := attrs.Memory.RAM; ram > 0 {
+		target.VM.Settings.Memory.Allocation = qguest.MB(ram)
+	}
+
+	// Apply guest agent attributes
+	if err := applyQEMUAgent(attrs.Agent.QEMU, target); err != nil {
+		return err
+	}
+
+	// Apply spice protocol attributes
+	if err := applySpice(attrs.Spice, target); err != nil {
+		return err
+	}
+
+	return nil
+}
