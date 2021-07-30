@@ -1,5 +1,7 @@
 package qemu
 
+import "strings"
+
 // TODO: Someday consider outputting configuration in the readconfig format,
 // whenver that gets finalized. See:
 // https://lists.gnu.org/archive/html/qemu-devel/2020-11/msg02934.html
@@ -63,4 +65,18 @@ func (opts Options) Args() []string {
 		}
 	}
 	return args
+}
+
+// String returns a multiline string for invocation of a QEMU virtual
+// machine with the given options.
+func (opts Options) String() string {
+	var b strings.Builder
+	for i, option := range opts {
+		last := i == len(opts)-1
+		b.WriteString(option.String())
+		if !last {
+			b.WriteString(" \\\n")
+		}
+	}
+	return b.String()
 }
