@@ -12,22 +12,21 @@ type InitCmd struct{}
 
 // Run executes the init command.
 func (cmd InitCmd) Run(ctx context.Context) error {
-	const (
-		confDir    = "/etc/machina"
-		machineDir = "/etc/machina/machine.conf.d"
-	)
-
 	// Check for the presence of /etc on the local machine
 	if fi, err := os.Stat("/etc"); err != nil || !fi.IsDir() {
-		return errors.New("init is only support on systems that store configuration in /etc")
+		return errors.New("init is only supported on systems that store configuration in /etc")
 	}
 
+	return initSystem()
+}
+
+func initSystem() error {
 	// Ensure that the various configuration directories exist
-	if err := initDir(confDir); err != nil {
+	if err := initDir(linuxConfDir); err != nil {
 		return err
 	}
 
-	if err := initDir(machineDir); err != nil {
+	if err := initDir(linuxMachineDir); err != nil {
 		return err
 	}
 

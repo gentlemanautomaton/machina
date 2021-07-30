@@ -14,7 +14,7 @@ func main() {
 	defer stop()
 
 	var cli struct {
-		Init       InitCmd       `kong:"cmd,help='Prepares the system-wide machina configuration directory.'"`
+		Init       InitCmd       `kong:"cmd,help='Prepares the system-wide machina configuration directories.'"`
 		GenID      GenIDCmd      `kong:"cmd,name='gen-id',help='Generate a random machine identifier.'"`
 		GenMAC     GenMACCmd     `kong:"cmd,name='gen-mac',help='Generate a random MAC hardware address.'"`
 		Generate   GenerateCmd   `kong:"cmd,help='Generates systemd configuration files from /etc/machina/machine.conf.d/*.conf.json.'"`
