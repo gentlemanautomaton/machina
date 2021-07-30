@@ -17,7 +17,7 @@ func main() {
 		Init       InitCmd       `kong:"cmd,help='Prepares the system-wide machina configuration directory.'"`
 		GenID      GenIDCmd      `kong:"cmd,name='gen-id',help='Generate a random machine identifier.'"`
 		GenMAC     GenMACCmd     `kong:"cmd,name='gen-mac',help='Generate a random MAC hardware address.'"`
-		Generate   GenerateCmd   `kong:"cmd,help='Generate QEMU configuration for a virtual machine.'"`
+		Generate   GenerateCmd   `kong:"cmd,help='Generates systemd configuration files from /etc/machina/machine.conf.d/*.conf.json.'"`
 		List       ListCmd       `kong:"cmd,help='Lists all of the virtual machines present.'"`
 		Cat        CatCmd        `kong:"cmd,help='Print virtual machine configuration.'"`
 		Prepare    PrepareCmd    `kong:"cmd,help='Prepares the host environment for a virtual machine to start.'"`
