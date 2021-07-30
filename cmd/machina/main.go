@@ -14,10 +14,14 @@ func main() {
 	defer stop()
 
 	var cli struct {
+		Install    InstallCmd    `kong:"cmd,help='Installs the command in the system path.'"`
 		Init       InitCmd       `kong:"cmd,help='Prepares the system-wide machina configuration directories.'"`
 		GenID      GenIDCmd      `kong:"cmd,name='gen-id',help='Generate a random machine identifier.'"`
 		GenMAC     GenMACCmd     `kong:"cmd,name='gen-mac',help='Generate a random MAC hardware address.'"`
 		Generate   GenerateCmd   `kong:"cmd,help='Generates systemd configuration files from /etc/machina/machine.conf.d/*.conf.json.'"`
+		Enable     EnableCmd     `kong:"cmd,help='Enables the systemd units for virtual machines.'"`
+		Disable    DisableCmd    `kong:"cmd,help='Disables the systemd units for virtual machines.'"`
+		Status     StatusCmd     `kong:"cmd,help='Prints the systemd unit status for virtual machines.'"`
 		List       ListCmd       `kong:"cmd,help='Lists all of the virtual machines present.'"`
 		Cat        CatCmd        `kong:"cmd,help='Print virtual machine configuration.'"`
 		Prepare    PrepareCmd    `kong:"cmd,help='Prepares the host environment for a virtual machine to start.'"`
