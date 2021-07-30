@@ -21,7 +21,7 @@ type ComposedMachine struct {
 // EnumMachines attempts to load the set of machina machine names that are
 // present on the local system.
 func EnumMachines() (names []string, err error) {
-	root := os.DirFS("machine.conf.d")
+	root := os.DirFS(MachineDir())
 	matches, err := fs.Glob(root, "*.conf.json")
 	if err != nil {
 		return nil, err
@@ -58,10 +58,25 @@ func LoadAndComposeMachines(names ...string) (vms []ComposedMachine, sys machina
 	return vms, sys, nil
 }
 
+// LoadMachines attempts to load the machina definitions for the given
+// machine names. The machines are returned as-is, without application
+// of tags or other system-wide configuration.
+func LoadMachines(names ...string) (machines []machina.Machine, err error) {
+	for _, name := range names {
+		machine, err := LoadMachine(name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load machine configuration for \"%s\": %v", name, err)
+		}
+		machines = append(machines, machine)
+	}
+
+	return machines, nil
+}
+
 // LoadMachine attempts to load the machine configuration for the given
 // machine name.
 func LoadMachine(name string) (m machina.Machine, err error) {
-	path := filepath.Join("machine.conf.d", fmt.Sprintf("%s.conf.json", name))
+	path := filepath.Join(MachineDir(), fmt.Sprintf("%s.conf.json", name))
 	f, err := os.Open(path)
 	if err != nil {
 		return machina.Machine{}, err
@@ -83,7 +98,7 @@ func LoadMachine(name string) (m machina.Machine, err error) {
 // LoadSystem attempts to load the system configuration from a
 // "system.conf.json" file.
 func LoadSystem() (sys machina.System, err error) {
-	f, err := os.Open("machina.conf.json")
+	f, err := os.Open(filepath.Join(ConfDir(), "machina.conf.json"))
 	if err != nil {
 		return machina.System{}, err
 	}
