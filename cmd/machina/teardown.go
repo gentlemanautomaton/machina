@@ -11,7 +11,7 @@ import (
 // TeardownCmd removes host resources that were previously prepared for a
 // virtual machine.
 type TeardownCmd struct {
-	Machines []string `kong:"arg,optional,help='Virtual machines to teardown.'"`
+	Machines []string `kong:"arg,help='Virtual machines to teardown.'"`
 }
 
 // Run executes the machine teardown command.

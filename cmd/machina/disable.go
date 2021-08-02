@@ -6,7 +6,7 @@ import (
 
 // DisableCmd disables systemd units for one or more virtual machines.
 type DisableCmd struct {
-	Machines []string `kong:"arg,optional,help='Virtual machines to disable.'"`
+	Machines []string `kong:"arg,help='Virtual machines to disable.'"`
 }
 
 // Run executes the machine disablement command.

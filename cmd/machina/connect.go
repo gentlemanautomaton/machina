@@ -9,7 +9,7 @@ import (
 
 // ConnectCmd enables the connections to one or more virtual machines.
 type ConnectCmd struct {
-	Machines []string `kong:"arg,optional,help='Virtual machines to bridge.'"`
+	Machines []string `kong:"arg,help='Virtual machines to bridge.'"`
 }
 
 // Run executes the connect command.
