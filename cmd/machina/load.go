@@ -58,6 +58,24 @@ func LoadAndComposeMachines(names ...string) (vms []ComposedMachine, sys machina
 	return vms, sys, nil
 }
 
+// LoadMachineUnits attempts to load the machina definitions for the given
+// machine names and return the unit names for each of them. An error
+// is returned if the definition for any machine could not be loaded.
+//
+// FIXME: Ensure that the returned unit names are valid.
+func LoadMachineUnits(names ...string) (units []string, err error) {
+	machines, err := LoadMachines(names...)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range machines {
+		units = append(units, fmt.Sprint("machina-", machines[i].Name))
+	}
+
+	return units, nil
+}
+
 // LoadMachines attempts to load the machina definitions for the given
 // machine names. The machines are returned as-is, without application
 // of tags or other system-wide configuration.
