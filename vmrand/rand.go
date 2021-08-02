@@ -44,7 +44,7 @@ func NewRandomMachineID() (machina.MachineID, error) {
 	return machina.MachineID(id), nil
 }
 
-// NewRandomMachineID returns a random machine ID.
+// NewRandomMachineIDFromReader returns a random machine ID.
 //
 // It uses the given reader as a source of randomness.
 func NewRandomMachineIDFromReader(r io.Reader) (machina.MachineID, error) {

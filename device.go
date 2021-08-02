@@ -32,7 +32,7 @@ func (d DeviceID) MarshalText() (text []byte, err error) {
 	return UUID(d).MarshalText()
 }
 
-// MarshalText implements the encoding.TextUnmarshaler interface.
+// UnmarshalText implements the encoding.TextUnmarshaler interface.
 func (d *DeviceID) UnmarshalText(text []byte) error {
 	return (*UUID)(d).UnmarshalText(text)
 }

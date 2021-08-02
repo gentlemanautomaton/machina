@@ -5,7 +5,7 @@ import (
 )
 
 // ControllerMap keeps track of which device controllers have been added to
-// a QEMU virtual machine defintion.
+// a QEMU virtual machine definition.
 type ControllerMap struct {
 	topo   *Topology
 	serial *Serial

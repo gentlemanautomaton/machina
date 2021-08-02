@@ -37,7 +37,7 @@ func (pdev PhysicalDevice) Path() string {
 	return pdev.path
 }
 
-// Path returns the sysfs path for the physical device.
+// Exists returns true if the sysfs path for the device exists.
 func (pdev PhysicalDevice) Exists() (bool, error) {
 	fi, err := os.Stat(pdev.path)
 	if err != nil {

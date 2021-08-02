@@ -44,7 +44,7 @@ func applySpice(spice machina.Spice, t Target) error {
 	// Grab a reference to the device registry for host characters devices
 	registry := t.VM.Resources.CharDevs()
 
-	// Faciliate host/guest communication
+	// Facilitate host/guest communication
 	{
 		// Prepare a communication channel for the host and guest
 		vdagent, err := chardev.SpiceChannel{

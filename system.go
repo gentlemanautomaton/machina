@@ -5,7 +5,7 @@ type System struct {
 	// Storage defines storage pools available on the host system.
 	Storage StorageMap `json:"storage,omitempty"`
 
-	// Network defines network pools avaialble on the host system.
+	// Network defines network pools available on the host system.
 	Network NetworkMap `json:"network,omitempty"`
 
 	// MediatedDevices is a list of mediated devices available on the host

@@ -248,9 +248,8 @@ type firmwareHandler struct{}
 func (firmwareHandler) NodeName(spec VolumeSpec) blockdev.NodeName {
 	if spec.Storage.ReadOnly {
 		return blockdev.NodeName(spec.Volume.Name)
-	} else {
-		return blockdev.NodeName(fmt.Sprintf("%s-%s", spec.Machine.Name, spec.Volume.Name))
 	}
+	return blockdev.NodeName(fmt.Sprintf("%s-%s", spec.Machine.Name, spec.Volume.Name))
 }
 
 func (h firmwareHandler) Apply(spec VolumeSpec, t Target) error {

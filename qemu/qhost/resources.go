@@ -39,7 +39,7 @@ func (r *Resources) BlockDevs() blockdev.NodeGraph {
 	return &r.blockdevs
 }
 
-// BlockDevs returns the character device registry for the host.
+// CharDevs returns the character device registry for the host.
 func (r *Resources) CharDevs() chardev.Registry {
 	return &r.chardevs
 }

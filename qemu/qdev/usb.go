@@ -99,7 +99,7 @@ func (controller *USB) AddRedir(chardev chardev.ID) (USBRedir, error) {
 	return tablet, nil
 }
 
-// AddRedir connects a USB redirection device to the xHCI Controller.
+// AddStorage connects a USB Storage device to the xHCI Controller.
 func (controller *USB) AddStorage(bdev blockdev.Node) (USBStorage, error) {
 	index, err := controller.allocate()
 	if err != nil {

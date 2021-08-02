@@ -24,6 +24,11 @@ const (
 	ClockIsolationVM       = ClockIsolation("vm")
 )
 
+// ClockDriftFix specifies what to do when a VM fails to process its clock
+// interrupts.
+//
+// When set to slew, the host will try to resync the guest clock by playing
+// clock ticks at a faster rate until the VM has caught up.
 type ClockDriftFix string
 
 // Possible ClockBase values.
