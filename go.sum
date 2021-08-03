@@ -2,10 +2,6 @@ github.com/alecthomas/kong v0.2.16 h1:F232CiYSn54Tnl1sJGTeHmx4vJDNLVP2b9yCVMOQwH
 github.com/alecthomas/kong v0.2.16/go.mod h1:kQOmtJgV+Lb4aj+I2LEn40cbtawdWJ9Y8QLq+lElKxE=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/gentlemanautomaton/systemdconf v0.0.0-20210724012803-448f645de0bf h1:C29sm8kbAX4iQnbqJjr4/TmKtZLSOuoreaWMn9ifFAo=
-github.com/gentlemanautomaton/systemdconf v0.0.0-20210724012803-448f645de0bf/go.mod h1:1a3ny+JOXJ71RrRGd3aQ61c0eYM7SsP8vDgkJfxD6jk=
-github.com/gentlemanautomaton/systemdconf v0.0.0-20210728092206-872464eea069 h1:HHyRM/nniCBDclLfkAiu6aGnN+fd70LugExUwnYqxOc=
-github.com/gentlemanautomaton/systemdconf v0.0.0-20210728092206-872464eea069/go.mod h1:1a3ny+JOXJ71RrRGd3aQ61c0eYM7SsP8vDgkJfxD6jk=
 github.com/gentlemanautomaton/systemdconf v0.0.0-20210729080519-cd85a7cef12c h1:o1Hb4Q1A242qUo/0UQbxj9crXHT+L7vcmnnZgLdMMTA=
 github.com/gentlemanautomaton/systemdconf v0.0.0-20210729080519-cd85a7cef12c/go.mod h1:1a3ny+JOXJ71RrRGd3aQ61c0eYM7SsP8vDgkJfxD6jk=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
