@@ -112,13 +112,14 @@ func Example() {
 	// -cpu host \
 	// -smp sockets=1,cores=24 \
 	// -m size=2G \
+	// -boot menu=on,reboot-timeout=5000 \
 	// -object iothread,id=iothread.0 \
 	// -blockdev driver=file,node-name=test-os-file,filename=~/test-os.raw \
 	// -blockdev driver=raw,node-name=test-os,file=test-os-file \
 	// -netdev tap,id=net.0,ifname=kvmbr0,script=/etc/qemu/if-up.sh,downscript=/etc/qemu/if-down.sh \
-	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=0.0,multifunction=on \
+	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=1.0,multifunction=on \
 	// -device virtio-net-pci,bus=pcie.1.0,mac=00:00:00:00:00:00,netdev=net.0 \
-	// -device ioh3420,id=pcie.1.1,chassis=0,bus=pcie.0,addr=0.1 \
-	// -device virtio-scsi-pci,id=scsi.0,bus=pcie.1.1,iothread=iothread.0,num_queues=4 \
+	// -device ioh3420,id=pcie.1.1,chassis=1,bus=pcie.0,addr=1.1 \
+	// -device virtio-scsi-pci,id=scsi,bus=pcie.1.1,iothread=iothread.0,num_queues=4 \
 	// -device scsi-hd,id=scsi.0.0,bus=scsi.0,channel=0,scsi-id=0,lun=0,drive=test-os \
 }
