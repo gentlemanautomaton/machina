@@ -30,9 +30,9 @@ func (cmd DisconnectCmd) Run(ctx context.Context) error {
 				if firstError == nil {
 					firstError = err
 				}
-				fmt.Printf("%s: Failed: %v\n", machina.LinkName(vm.Name, conn), err)
+				fmt.Printf("%s: Failed: %v\n", machina.MakeLinkName(vm.Name, conn), err)
 			} else {
-				fmt.Printf("%s: Disabled\n", machina.LinkName(vm.Name, conn))
+				fmt.Printf("%s: Disabled\n", machina.MakeLinkName(vm.Name, conn))
 			}
 		}
 	}

@@ -21,7 +21,7 @@ func enableConnection(machine machina.MachineName, conn machina.Connection, sys 
 	}
 
 	// Find the link on the local system
-	link, err := netlink.LinkByName(machina.LinkName(machine, conn))
+	link, err := netlink.LinkByName(machina.MakeLinkName(machine, conn))
 	if err != nil {
 		return fmt.Errorf("link not found: %v", err)
 	}
@@ -51,7 +51,7 @@ func enableConnection(machine machina.MachineName, conn machina.Connection, sys 
 
 func disableConnection(machine machina.MachineName, conn machina.Connection, sys machina.System) error {
 	// Find the link on the local system
-	link, err := netlink.LinkByName(machina.LinkName(machine, conn))
+	link, err := netlink.LinkByName(machina.MakeLinkName(machine, conn))
 	if err != nil {
 		return fmt.Errorf("link not found: %v", err)
 	}

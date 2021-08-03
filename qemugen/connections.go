@@ -20,6 +20,9 @@ func applyConnections(machine machina.MachineName, conns []machina.Connection, n
 			return fmt.Errorf("connection %s uses an unspecified machina network: %s", conn.Name, conn.Network)
 		}
 
+		// Determine the link name
+		link := machina.MakeLinkName(machine, conn)
+
 		// If up/down scripts were provided, use those
 		up, down := qhost.NoScript, qhost.NoScript
 		if network.Up != "" {
@@ -30,7 +33,7 @@ func applyConnections(machine machina.MachineName, conns []machina.Connection, n
 		}
 
 		// Add the host's netdev resource for this connection
-		tap, err := t.VM.Resources.AddNetworkTap(machina.LinkName(machine, conn), up, down)
+		tap, err := t.VM.Resources.AddNetworkTap(link, up, down)
 		if err != nil {
 			return err
 		}
