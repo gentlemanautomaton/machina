@@ -55,7 +55,9 @@ func (params Parameters) String() string {
 
 	list := make([]string, 0, len(params))
 	for _, param := range params {
-		list = append(list, param.String())
+		if s := param.String(); s != "" {
+			list = append(list, s)
+		}
 	}
 
 	return strings.Join(list, ",")
