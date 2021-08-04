@@ -1,6 +1,9 @@
 package qemu
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 // Parameter describes a parameter for a QEMU virtual machine option.
 type Parameter struct {
@@ -14,13 +17,15 @@ type Parameter struct {
 // [name]=[value]. Otherwise, it returns [name] or [value], whichever is
 // non-empty.
 func (param Parameter) String() string {
-	if param.Name == "" {
-		return param.Value
+	name := cleanParameter(param.Name)
+	value := cleanParameter(param.Value)
+	if name == "" {
+		return value
 	}
-	if param.Value == "" {
-		return param.Name
+	if value == "" {
+		return name
 	}
-	return param.Name + "=" + param.Value
+	return name + "=" + param.Value
 }
 
 // Add adds a named parameter with the give name and value.
@@ -61,4 +66,15 @@ func (params Parameters) String() string {
 	}
 
 	return strings.Join(list, ",")
+}
+
+// cleanParameter returns s with all non-printable characters removed as well
+// as commas, equal signs and quotation marks.
+func cleanParameter(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r == ',' || r == '"' || r == '=' || unicode.IsSpace(r) || !unicode.IsPrint(r) {
+			return -1
+		}
+		return r
+	}, s)
 }
