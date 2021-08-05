@@ -34,22 +34,27 @@ func initSystem() error {
 }
 
 func initDir(dir string) error {
-	if fi, err := os.Stat(dir); err != nil {
-		if !os.IsNotExist(err) {
-			return err
-		}
+	action := func() error {
+		if fi, err := os.Stat(dir); err != nil {
+			if !os.IsNotExist(err) {
+				return err
+			}
 
-		fmt.Printf("Creating directory \"%s\"...", dir)
-		if err := os.Mkdir(dir, 0755); err != nil {
-			fmt.Printf(" failed.\n")
-			return err
+			if err := os.Mkdir(dir, 0755); err != nil {
+				return err
+			}
+		} else if !fi.IsDir() {
+			return fmt.Errorf("%s exists but is not a directory", dir)
 		}
-		fmt.Printf(" success.\n")
-	} else if !fi.IsDir() {
-		return fmt.Errorf("%s exists but is not a directory", dir)
-	} else {
-		fmt.Printf("OK: %s\n", dir)
+		return nil
 	}
+
+	fmt.Printf("PREPARE: \"%s\": ", dir)
+	if err := action(); err != nil {
+		fmt.Printf(": FAILED\n")
+		return err
+	}
+	fmt.Printf("OK\n")
 
 	return nil
 }

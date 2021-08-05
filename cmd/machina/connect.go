@@ -14,7 +14,11 @@ type ConnectCmd struct {
 
 // Run executes the connect command.
 func (cmd ConnectCmd) Run(ctx context.Context) error {
-	mconns, sys, err := LoadMachineConnections(cmd.MachinesOrConnections...)
+	return connect(cmd.MachinesOrConnections)
+}
+
+func connect(names []string) error {
+	mconns, sys, err := LoadMachineConnections(names...)
 	if err != nil {
 		return err
 	}

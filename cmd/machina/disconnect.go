@@ -14,7 +14,11 @@ type DisconnectCmd struct {
 
 // Run executes the disconnect command.
 func (cmd DisconnectCmd) Run(ctx context.Context) error {
-	mconns, sys, err := LoadMachineConnections(cmd.MachinesOrConnections...)
+	return disconnect(cmd.MachinesOrConnections)
+}
+
+func disconnect(names []string) error {
+	mconns, sys, err := LoadMachineConnections(names...)
 	if err != nil {
 		return err
 	}

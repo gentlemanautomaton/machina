@@ -20,38 +20,70 @@ func (cmd InstallCmd) Run(ctx context.Context) error {
 		return fmt.Errorf("installation is only supported on systems that store executables in %s", linuxBinDir)
 	}
 
-	name := filepath.Base(filepath.Clean(os.Args[0]))
-	source, err := filepath.Abs(os.Args[0])
-	if err != nil {
-		return fmt.Errorf("failed to determine absolute path for %s", os.Args[0])
+	program := filepath.Base(filepath.Clean(os.Args[0]))
+
+	// Copy the program
+	{
+		source, err := filepath.Abs(os.Args[0])
+		if err != nil {
+			return fmt.Errorf("failed to determine absolute path for %s", os.Args[0])
+		}
+
+		dest := filepath.Join(linuxBinDir, program)
+		if err := copyFile(source, dest); err != nil {
+			return err
+		}
 	}
 
-	fmt.Printf("Copying \"%s\" from \"%s\" to \"%s\"...", name, filepath.Dir(source), linuxBinDir)
-	if err := copyFile(source, filepath.Join(linuxBinDir, name)); err != nil {
-		fmt.Printf(" failed: %v\n", err)
+	// Prepare symlinks
+	if err := makeSymlink(program, filepath.Join(linuxBinDir, program+"-ifup")); err != nil {
 		return err
 	}
-	fmt.Printf(" done.\n")
+	if err := makeSymlink(program, filepath.Join(linuxBinDir, program+"-ifdown")); err != nil {
+		return err
+	}
 
+	// Perform initialization
 	return initSystem()
 }
 
 func copyFile(source, dest string) error {
-	sourceFile, err := os.Open(source)
-	if err != nil {
+	action := func() error {
+		sourceFile, err := os.Open(source)
+		if err != nil {
+			return err
+		}
+		defer sourceFile.Close()
+
+		destFile, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+		if err != nil {
+			return err
+		}
+		defer destFile.Close()
+
+		if _, err := io.Copy(destFile, sourceFile); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	fmt.Printf("COPY:    \"%s\" → \"%s\"", source, dest)
+	if err := action(); err != nil {
+		fmt.Printf(": FAILED\n")
 		return err
 	}
-	defer sourceFile.Close()
+	fmt.Printf(": OK\n")
 
-	destFile, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
-	if err != nil {
+	return nil
+}
+
+func makeSymlink(target, path string) error {
+	fmt.Printf("SYMLINK: \"%s\" → \"%s\"", path, target)
+	if err := os.Symlink(target, path); err != nil && !os.IsExist(err) {
+		fmt.Printf(": FAILED\n")
 		return err
 	}
-	defer destFile.Close()
-
-	if _, err := io.Copy(destFile, sourceFile); err != nil {
-		return err
-	}
-
+	fmt.Printf(": OK\n")
 	return nil
 }

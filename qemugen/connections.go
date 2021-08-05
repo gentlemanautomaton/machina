@@ -27,9 +27,13 @@ func applyConnections(machine machina.MachineName, conns []machina.Connection, n
 		up, down := qhost.NoScript, qhost.NoScript
 		if network.Up != "" {
 			up = qhost.Script(network.Up)
+		} else {
+			up = qhost.Script("/usr/bin/machina-ifup")
 		}
 		if network.Down != "" {
 			down = qhost.Script(network.Down)
+		} else {
+			down = qhost.Script("/usr/bin/machina-ifdown")
 		}
 
 		// Add the host's netdev resource for this connection

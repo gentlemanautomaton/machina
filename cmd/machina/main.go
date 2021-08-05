@@ -4,6 +4,8 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
 	"syscall"
 
 	"github.com/alecthomas/kong"
@@ -12,6 +14,15 @@ import (
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	switch program := filepath.Base(filepath.Clean(os.Args[0])); {
+	case strings.HasSuffix(program, "-ifup"):
+		ifup(ctx)
+		return
+	case strings.HasSuffix(program, "-ifdown"):
+		ifdown(ctx)
+		return
+	}
 
 	var cli struct {
 		Install    InstallCmd    `kong:"cmd,help='Installs the machina command in the system path.'"`
@@ -40,6 +51,36 @@ func main() {
 		kong.UsageOnError())
 
 	err := app.Run()
+
+	app.FatalIfErrorf(err)
+}
+
+func ifup(ctx context.Context) {
+	var cli struct {
+		Connections []string `kong:"arg,help='Connections to enable. Use the [machine].[conn] format.'"`
+	}
+
+	app := kong.Parse(&cli,
+		kong.Description("Enables machina network connections."),
+		kong.BindTo(ctx, (*context.Context)(nil)),
+		kong.UsageOnError())
+
+	err := connect(cli.Connections)
+
+	app.FatalIfErrorf(err)
+}
+
+func ifdown(ctx context.Context) {
+	var cli struct {
+		Connections []string `kong:"arg,help='Connections to disable. Use the [machine].[conn] format.'"`
+	}
+
+	app := kong.Parse(&cli,
+		kong.Description("Disables machina network connections."),
+		kong.BindTo(ctx, (*context.Context)(nil)),
+		kong.UsageOnError())
+
+	err := disconnect(cli.Connections)
 
 	app.FatalIfErrorf(err)
 }
