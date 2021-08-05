@@ -16,7 +16,7 @@ type Option struct {
 
 // String returns a string representation of the option.
 //
-// It returns an empty string if the option is invalid.
+// It returns an empty string if the option lacks a type.
 func (opt Option) String() string {
 	if opt.Type == "" {
 		return ""
