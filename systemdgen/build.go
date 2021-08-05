@@ -13,6 +13,7 @@ import (
 // Build returns a set of systemd unit configuration sections for machine
 // with the given options.
 func Build(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section {
+	quotedName := QuoteArg(string(machine.Name))
 	return []systemdconf.Section{
 		systemdconf.Unit{
 			Description: fmt.Sprintf("machina KVM %s", machine.Name),
@@ -21,10 +22,10 @@ func Build(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section
 		},
 		systemdconf.Service{
 			Type:         "simple",
-			ExecStartPre: []string{fmt.Sprintf("machina prepare %s", machine.Name)},
-			ExecStart:    []string{fmt.Sprintf("qemu-system-x86_64 \\\n%s", opts.String())},
-			//ExecStop:     []string{fmt.Sprintf("machina stop %s", machine.Name)},
-			ExecStopPost: []string{fmt.Sprintf("machina teardown %s", machine.Name)},
+			ExecStartPre: []string{fmt.Sprintf("machina prepare %s", quotedName)},
+			ExecStart:    []string{fmt.Sprintf("qemu-system-x86_64 \\\n%s", QuoteOptions(opts))},
+			//ExecStop:     []string{fmt.Sprintf("machina stop %s", quotedName)},
+			ExecStopPost: []string{fmt.Sprintf("machina teardown %s", quotedName)},
 			TimeoutStop:  time.Minute,
 			Restart:      unitvalue.RestartOnFailure,
 		},
