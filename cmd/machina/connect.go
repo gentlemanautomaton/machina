@@ -9,33 +9,27 @@ import (
 
 // ConnectCmd enables the connections to one or more virtual machines.
 type ConnectCmd struct {
-	Machines []string `kong:"arg,help='Virtual machines to bridge.'"`
+	MachinesOrConnections []string `kong:"arg,help='Machines or individual connections to bridge. Use [machine] or [machine].[conn].'"`
 }
 
 // Run executes the connect command.
 func (cmd ConnectCmd) Run(ctx context.Context) error {
-	vms, sys, err := LoadAndComposeMachines(cmd.Machines...)
+	mconns, sys, err := LoadMachineConnections(cmd.MachinesOrConnections...)
 	if err != nil {
 		return err
 	}
 
 	var firstError error
-	for i, vm := range vms {
-		if i > 0 {
-			fmt.Println()
-		}
-
-		for _, conn := range vm.Connections {
-			if err := enableConnection(vm.Name, conn, sys); err != nil {
-				if firstError == nil {
-					firstError = err
-				}
-				fmt.Printf("%s: Failed: %v\n", machina.MakeLinkName(vm.Name, conn), err)
-			} else {
-				fmt.Printf("%s: Enabled\n", machina.MakeLinkName(vm.Name, conn))
+	for _, mconn := range mconns {
+		link := machina.MakeLinkName(mconn.Machine, mconn.Connection)
+		if err := enableConnection(mconn.Machine, mconn.Connection, sys); err != nil {
+			if firstError == nil {
+				firstError = err
 			}
+			fmt.Printf("%s: failed: %v\n", link, err)
+		} else {
+			fmt.Printf("%s: enabled\n", link)
 		}
 	}
-
 	return firstError
 }

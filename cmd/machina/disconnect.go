@@ -9,31 +9,26 @@ import (
 
 // DisconnectCmd enables the connections to one or more virtual machines.
 type DisconnectCmd struct {
-	Machines []string `kong:"arg,help='Virtual machines to bridge.'"`
+	MachinesOrConnections []string `kong:"arg,help='Machines or individual connections to remove from the bridge. Use [machine] or [machine].[conn]..'"`
 }
 
 // Run executes the disconnect command.
 func (cmd DisconnectCmd) Run(ctx context.Context) error {
-	vms, sys, err := LoadAndComposeMachines(cmd.Machines...)
+	mconns, sys, err := LoadMachineConnections(cmd.MachinesOrConnections...)
 	if err != nil {
 		return err
 	}
 
 	var firstError error
-	for i, vm := range vms {
-		if i > 0 {
-			fmt.Println()
-		}
-
-		for _, conn := range vm.Connections {
-			if err := disableConnection(vm.Name, conn, sys); err != nil {
-				if firstError == nil {
-					firstError = err
-				}
-				fmt.Printf("%s: Failed: %v\n", machina.MakeLinkName(vm.Name, conn), err)
-			} else {
-				fmt.Printf("%s: Disabled\n", machina.MakeLinkName(vm.Name, conn))
+	for _, mconn := range mconns {
+		link := machina.MakeLinkName(mconn.Machine, mconn.Connection)
+		if err := disableConnection(mconn.Machine, mconn.Connection, sys); err != nil {
+			if firstError == nil {
+				firstError = err
 			}
+			fmt.Printf("%s: failed: %v\n", link, err)
+		} else {
+			fmt.Printf("%s: disabled\n", link)
 		}
 	}
 

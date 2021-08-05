@@ -26,8 +26,8 @@ func main() {
 		Stop       StopCmd       `kong:"cmd,help='Stops the systemd units for virtual machines.'"`
 		Prepare    PrepareCmd    `kong:"cmd,help='Prepares the host environment for a virtual machine to start.'"`
 		Teardown   TeardownCmd   `kong:"cmd,help='Removes host resources prepared for a virtual machine.'"`
-		Connect    ConnectCmd    `kong:"cmd,help='Connects a virtual machine to the network.'"`
-		Disconnect DisconnectCmd `kong:"cmd,help='Disconnects a virtual machine from the network.'"`
+		Connect    ConnectCmd    `kong:"cmd,help='Connects a whole virtual machine or individual connections to the network.'"`
+		Disconnect DisconnectCmd `kong:"cmd,help='Disconnects a whole virtual machine or individual connections from the network.'"`
 		GenID      GenIDCmd      `kong:"cmd,name='gen-id',help='Generate a random machine identifier.'"`
 		GenMAC     GenMACCmd     `kong:"cmd,name='gen-mac',help='Generate a random MAC hardware address.'"`
 		Args       ArgsCmd       `kong:"cmd,help='Displays the QEMU arguments for virtual machines.'"`

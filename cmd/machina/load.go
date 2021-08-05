@@ -32,6 +32,92 @@ func EnumMachines() (names []string, err error) {
 	return names, nil
 }
 
+// LoadMachineConnections loads a set of connections for the given names.
+//
+// If any of the names are for machines, all of the connections for those
+// machines will be returned.
+func LoadMachineConnections(names ...string) (conns []machina.MachineConnection, sys machina.System, err error) {
+	sys, err = LoadSystem()
+	if err != nil {
+		return nil, machina.System{}, fmt.Errorf("failed to load system configuration: %v", err)
+	}
+
+	definitions := make(map[machina.MachineName]machina.Definition)
+	seen := make(map[string]bool)
+	for _, name := range names {
+		// Parse the name into machine and optional connection name parts
+		machineName, connName := parseMachineConnection(name)
+
+		// If we haven't loaded the definition for this machine yet, load it
+		// now
+		definition, loaded := definitions[machineName]
+		if !loaded {
+			machine, err := LoadMachine(string(machineName))
+			if err != nil {
+				return nil, sys, fmt.Errorf("failed to load machine configuration for \"%s\": %v", name, err)
+			}
+			definition, err = machina.Build(machine, sys)
+			if err != nil {
+				return nil, sys, fmt.Errorf("failed to build configuration for \"%s\": %v", name, err)
+			}
+			definitions[machineName] = definition
+		}
+
+		// If a connection name hasn't been provided, add all of the machine's connections
+		if connName == "" {
+			for _, conn := range definition.Connections {
+				link := machina.MakeLinkName(machineName, conn)
+				if seen[link] {
+					continue // Already added
+				}
+				conns = append(conns, machina.MachineConnection{
+					Machine:    machineName,
+					Connection: conn,
+				})
+				seen[link] = true
+			}
+			continue
+		}
+
+		// Fine the given connetion name in the list
+		found := false
+		for _, conn := range definition.Connections {
+			if conn.Name != connName {
+				continue
+			}
+			link := machina.MakeLinkName(machineName, conn)
+			if seen[link] {
+				continue // Already added
+			}
+			conns = append(conns, machina.MachineConnection{
+				Machine:    machineName,
+				Connection: conn,
+			})
+			seen[link] = true
+			found = true
+			break
+		}
+
+		if !found {
+			return nil, sys, fmt.Errorf("failed to locate connection \"%s\" within \"%s\"", connName, machineName)
+		}
+	}
+
+	return conns, sys, nil
+}
+
+func parseMachineConnection(name string) (machine machina.MachineName, conn machina.ConnectionName) {
+	parts := strings.SplitN(name, ".", 2)
+	switch len(parts) {
+	case 0:
+		return "", ""
+	case 1:
+		return machina.MachineName(parts[0]), ""
+	default:
+		return machina.MachineName(parts[0]), machina.ConnectionName(parts[1])
+	}
+}
+
 // LoadAndComposeMachines attempts to load the machina definitions for the given
 // machine names. It also returns the system configuration.
 func LoadAndComposeMachines(names ...string) (vms []ComposedMachine, sys machina.System, err error) {

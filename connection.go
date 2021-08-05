@@ -43,6 +43,12 @@ func MergeConnections(conns ...Connection) []Connection {
 	return out
 }
 
+// MachineConnection describes a connection for a machine.
+type MachineConnection struct {
+	Machine MachineName
+	Connection
+}
+
 // maxIfaceLength is the maximum length of an interface name in linux.
 // It excludes the null terminator.
 const maxIfaceLength = 15
