@@ -58,7 +58,7 @@ func MakeLinkName(machine MachineName, conn Connection) string {
 	name := fmt.Sprintf("%s.%s", machine, conn.Name)
 
 	// If the link name can be used as-is, just do that
-	if len(name) < maxIfaceLength {
+	if len(name) <= maxIfaceLength {
 		return cleanInterfaceName(name)
 	}
 
