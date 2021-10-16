@@ -6,7 +6,7 @@ import (
 
 // EnableCmd enables systemd units for one or more virtual machines.
 type EnableCmd struct {
-	Machines []string `kong:"arg,help='Virtual machines to enable.'"`
+	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to enable.'"`
 }
 
 // Run executes the machine enablement command.

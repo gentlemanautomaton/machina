@@ -5,10 +5,11 @@ import (
 )
 
 const (
-	linuxBinDir     = "/usr/bin"
-	linuxConfDir    = "/etc/machina"
-	linuxMachineDir = "/etc/machina/machine.conf.d"
-	linuxUnitDir    = "/etc/systemd/system"
+	linuxBinDir            = "/usr/bin"
+	linuxConfDir           = "/etc/machina"
+	linuxMachineDir        = "/etc/machina/machine.conf.d"
+	linuxUnitDir           = "/etc/systemd/system"
+	linuxBashCompletionDir = "/usr/share/bash-completion/completions"
 )
 
 // ConfDir returns the path where machina configuration should be installed

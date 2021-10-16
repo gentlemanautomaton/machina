@@ -12,7 +12,7 @@ import (
 
 // RunCmd starts a QEMU virtual machine.
 type RunCmd struct {
-	Machine string `kong:"arg,optional,help='Virtual machine to run.'"`
+	Machine string `kong:"arg,predictor=machines,optional,help='Virtual machine to run.'"`
 }
 
 // Run executes the run command.

@@ -9,6 +9,8 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kong"
+	"github.com/posener/complete"
+	"github.com/willabides/kongplete"
 )
 
 func main() {
@@ -45,14 +47,23 @@ func main() {
 		Run        RunCmd        `kong:"cmd,help='Run a virtual machine directly via QEMU.'"`
 	}
 
-	app := kong.Parse(&cli,
+	parser := kong.Must(&cli,
 		kong.Description("Manages kernel virtual machines via QEMU."),
 		kong.BindTo(ctx, (*context.Context)(nil)),
 		kong.UsageOnError())
 
-	err := app.Run()
+	var opts []kongplete.Option
+	{
+		machines, _ := EnumMachines()
+		opts = append(opts, kongplete.WithPredictor("machines", complete.PredictSet(machines...)))
+	}
+	kongplete.Complete(parser, opts...)
 
-	app.FatalIfErrorf(err)
+	app, parseErr := parser.Parse(os.Args[1:])
+	parser.FatalIfErrorf(parseErr)
+
+	appErr := app.Run()
+	app.FatalIfErrorf(appErr)
 }
 
 func ifup(ctx context.Context) {

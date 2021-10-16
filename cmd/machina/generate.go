@@ -20,7 +20,7 @@ import (
 // GenerateCmd generates a QEMU invocation for one or more virtual machines.
 type GenerateCmd struct {
 	Preview  bool     `kong:"optional,help='Print the generated systemd configurtion but do no apply it.'"`
-	Machines []string `kong:"arg,help='Specify virtual machines to generate.'"`
+	Machines []string `kong:"arg,predictor=machines,help='Specify virtual machines to generate.'"`
 }
 
 // Run executes the machine config generation command.

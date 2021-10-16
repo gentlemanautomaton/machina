@@ -11,7 +11,7 @@ import (
 
 // ArgsCmd displays the QEMU arguments used to invocake one or more virtual machines.
 type ArgsCmd struct {
-	Machines []string `kong:"arg,help='Virtual machines to show QEMU arguments for.'"`
+	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to show QEMU arguments for.'"`
 }
 
 // Run executes the machine config generation command.

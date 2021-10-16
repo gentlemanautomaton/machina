@@ -7,7 +7,7 @@ import "context"
 //
 // TODO: Perform a more graceful shutdown via QMP.
 type StopCmd struct {
-	Machines []string `kong:"arg,help='Virtual machines to stop.'"`
+	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to stop.'"`
 }
 
 // Run executes the machine stop command.

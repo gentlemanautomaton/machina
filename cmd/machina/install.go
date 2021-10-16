@@ -43,6 +43,14 @@ func (cmd InstallCmd) Run(ctx context.Context) error {
 		return err
 	}
 
+	// Add a bash autocomplete file
+	if fi, err := os.Stat(linuxBashCompletionDir); err == nil && fi.IsDir() {
+		programPath := filepath.Join(linuxBinDir, program)
+		completionFilePath := filepath.Join(linuxBashCompletionDir, program)
+		completionCommand := fmt.Sprintf("complete -C %s machina\n", programPath)
+		writeFile(completionFilePath, completionCommand)
+	}
+
 	// Perform initialization
 	return initSystem()
 }
@@ -81,6 +89,26 @@ func copyFile(source, dest string) error {
 func makeSymlink(target, path string) error {
 	fmt.Printf("SYMLINK: \"%s\" → \"%s\"", path, target)
 	if err := os.Symlink(target, path); err != nil && !os.IsExist(err) {
+		fmt.Printf(": FAILED\n")
+		return err
+	}
+	fmt.Printf(": OK\n")
+	return nil
+}
+
+func writeFile(target, content string) error {
+	fmt.Printf("CREATE:  \"%s\"", target)
+	switch existing, err := os.ReadFile(target); {
+	case os.IsNotExist(err):
+	case err != nil:
+		return err
+	default:
+		if string(existing) == content {
+			fmt.Printf(": OK\n")
+			return nil
+		}
+	}
+	if err := os.WriteFile(target, []byte(content), 0644); err != nil {
 		fmt.Printf(": FAILED\n")
 		return err
 	}

@@ -9,5 +9,7 @@ require (
 	github.com/gentlemanautomaton/systemdconf v0.0.0-20210729080519-cd85a7cef12c
 	github.com/godbus/dbus/v5 v5.0.5 // indirect
 	github.com/google/uuid v1.3.0
+	github.com/posener/complete v1.2.3
 	github.com/vishvananda/netlink v1.1.0
+	github.com/willabides/kongplete v0.2.0
 )

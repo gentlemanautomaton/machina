@@ -5,7 +5,7 @@ import "context"
 // StartCmd attempts to start the systemd units for the given virtual
 // machines.
 type StartCmd struct {
-	Machines []string `kong:"arg,help='Virtual machines to start.'"`
+	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to start.'"`
 }
 
 // Run executes the machine start command.
