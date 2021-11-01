@@ -28,7 +28,7 @@ func Build(m machina.Machine, sys machina.System) (qvm.Definition, error) {
 	if err := applyFirmware(m.Info(), def, sys.Storage, target); err != nil {
 		return qvm.Definition{}, err
 	}
-	if err := applyAttributes(def.Attributes, target); err != nil {
+	if err := applyAttributes(m.Info(), def.Attributes, target); err != nil {
 		return qvm.Definition{}, err
 	}
 	if err := applyVolumes(m.Info(), def.Volumes, sys.Storage, target); err != nil {
@@ -53,7 +53,7 @@ func applyDefaults(vm *qvm.Definition) error {
 	return nil
 }
 
-func applyAttributes(attrs machina.Attributes, target Target) error {
+func applyAttributes(machine machina.MachineInfo, attrs machina.Attributes, target Target) error {
 	// Apply CPU attributes
 	if sockets := attrs.CPU.Sockets; sockets > 0 {
 		target.VM.Settings.Processor.Sockets = sockets
@@ -68,6 +68,11 @@ func applyAttributes(attrs machina.Attributes, target Target) error {
 	// Apply memory attributes
 	if ram := attrs.Memory.RAM; ram > 0 {
 		target.VM.Settings.Memory.Allocation = qguest.MB(ram)
+	}
+
+	// Apply QEMU Machine Protocol attributes
+	if err := applyQMP(machine, attrs.QMP, target); err != nil {
+		return err
 	}
 
 	// Apply guest agent attributes

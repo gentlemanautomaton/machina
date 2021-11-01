@@ -1,6 +1,10 @@
 package machina
 
-import "github.com/gentlemanautomaton/machina/qemu/qguest"
+import (
+	"path"
+
+	"github.com/gentlemanautomaton/machina/qemu/qguest"
+)
 
 // Attributes describe various attributes of a machine.
 type Attributes struct {
@@ -8,16 +12,18 @@ type Attributes struct {
 	CPU          CPU          `json:"cpu,omitempty"`
 	Memory       Memory       `json:"memory,omitempty"`
 	Entitlements Entitlements `json:"entitlements,omitempty"`
+	QMP          QMP          `json:"qmp,omitempty"`
 	Agent        Agent        `json:"agent,omitempty"`
 	Spice        Spice        `json:"spice,omitempty"`
 }
 
 // Config adds the attributes configuration to the summary.
-func (a *Attributes) Config(out Summary) {
+func (a *Attributes) Config(info MachineInfo, out Summary) {
 	a.Firmware.Config(out)
 	a.CPU.Config(out)
 	a.Memory.Config(out)
 	a.Entitlements.Config(out)
+	a.QMP.Config(info, out)
 	a.Agent.Config(out)
 	a.Spice.Config(out)
 }
@@ -31,6 +37,7 @@ func MergeAttributes(attrs ...Attributes) Attributes {
 		overlayCPU(&merged.CPU, &attrs[i].CPU)
 		overlayMemory(&merged.Memory, &attrs[i].Memory)
 		overlayEntitlements(&merged.Entitlements, &attrs[i].Entitlements)
+		overlayQMP(&merged.QMP, &attrs[i].QMP)
 		overlayAgent(&merged.Agent, &attrs[i].Agent)
 		overlaySpice(&merged.Spice, &attrs[i].Spice)
 	}
@@ -122,6 +129,46 @@ func (e *Entitlements) Config(out Summary) {
 func overlayEntitlements(merged, overlay *Entitlements) {
 	if overlay.Enabled {
 		merged.Enabled = overlay.Enabled
+	}
+}
+
+// QMP describes the attributes of QEMU Machine Protocol support.
+type QMP struct {
+	Enabled    bool   `json:"enabled,omitempty"`
+	SocketPath string `json:"path,omitempty"`
+}
+
+// Config adds the QEMU Machine Protocol configuration to the summary.
+func (q *QMP) Config(info MachineInfo, out Summary) {
+	if !q.Enabled {
+		return
+	}
+	out.Add("QMP: Enabled")
+	if socket := q.MakeSocketPath(info); socket != "" {
+		out.Add("QMP Socket Path: %s", socket)
+	}
+}
+
+// MakeSocketPath returns the QMP socket path for the given machine.
+//
+// If machine info is non-empty and an explicit socket path has not been
+// defined, a default socket path for the machine will be returned.
+func (q *QMP) MakeSocketPath(info MachineInfo) string {
+	if q.SocketPath != "" {
+		return q.SocketPath
+	}
+	if info.Name != "" {
+		return path.Join(LinuxRunDir, string(info.Name), "qmp.socket")
+	}
+	return ""
+}
+
+func overlayQMP(merged, overlay *QMP) {
+	if overlay.Enabled {
+		merged.Enabled = true
+	}
+	if overlay.SocketPath != "" {
+		merged.SocketPath = overlay.SocketPath
 	}
 }
 

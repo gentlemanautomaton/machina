@@ -9,8 +9,8 @@ type Definition struct {
 }
 
 // Config adds the attributes configuration to the summary.
-func (d *Definition) Config(out Summary) {
-	d.Attributes.Config(out)
+func (d *Definition) Config(info MachineInfo, out Summary) {
+	d.Attributes.Config(info, out)
 
 	if len(d.Volumes) > 0 {
 		out.Add("Volumes:")

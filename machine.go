@@ -53,7 +53,7 @@ func (m Machine) Summary() string {
 		}
 	}
 
-	m.Definition.Config(&out)
+	m.Definition.Config(m.Info(), &out)
 
 	return out.String()
 }

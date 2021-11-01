@@ -2,6 +2,7 @@ package systemdgen
 
 import (
 	"fmt"
+	"path"
 	"time"
 
 	"github.com/gentlemanautomaton/machina"
@@ -25,9 +26,10 @@ func Build(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section
 			ExecStartPre: []string{fmt.Sprintf("machina prepare %s", quotedName)},
 			ExecStart:    []string{fmt.Sprintf("qemu-system-x86_64 \\\n%s", QuoteOptions(opts))},
 			//ExecStop:     []string{fmt.Sprintf("machina stop %s", quotedName)},
-			ExecStopPost: []string{fmt.Sprintf("machina teardown %s", quotedName)},
-			TimeoutStop:  time.Minute,
-			Restart:      unitvalue.RestartOnFailure,
+			ExecStopPost:       []string{fmt.Sprintf("machina teardown %s", quotedName)},
+			TimeoutStop:        time.Minute,
+			Restart:            unitvalue.RestartOnFailure,
+			RuntimeDirectories: []string{path.Join("machina", string(machine.Name))},
 		},
 		systemdconf.Install{
 			WantedBy: []string{"multi-user.target"},

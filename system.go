@@ -57,7 +57,7 @@ func (sys System) Summary() string {
 		for tag, def := range sys.Tag {
 			out.Add("%s:", tag)
 			out.Descend()
-			def.Config(&out)
+			def.Config(MachineInfo{}, &out)
 			out.Ascend()
 		}
 		out.Ascend()
