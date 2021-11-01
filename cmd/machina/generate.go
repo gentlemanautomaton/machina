@@ -80,11 +80,11 @@ func (cmd GenerateCmd) Run(ctx context.Context) error {
 
 func writeUnit(unit, config string) error {
 	// Check for the presence of the systemd directory on the local machine
-	if fi, err := os.Stat(linuxUnitDir); err != nil || !fi.IsDir() {
+	if fi, err := os.Stat(machina.LinuxUnitDir); err != nil || !fi.IsDir() {
 		return errors.New("generation is only supported on systems that store systemd units in /etc/systemd/system")
 	}
 
-	unitPath := filepath.Join(linuxUnitDir, unit+".service")
+	unitPath := filepath.Join(machina.LinuxUnitDir, unit+".service")
 
 	file, err := os.Create(unitPath)
 	if err != nil {

@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/gentlemanautomaton/machina"
 )
 
 // InstallCmd copies the machina command to /usr/bin and ensures that its
@@ -16,8 +18,8 @@ type InstallCmd struct {
 // Run executes the machina install command.
 func (cmd InstallCmd) Run(ctx context.Context) error {
 	// Check for the presence of /usr/bin on the local machine
-	if fi, err := os.Stat(linuxBinDir); err != nil || !fi.IsDir() {
-		return fmt.Errorf("installation is only supported on systems that store executables in %s", linuxBinDir)
+	if fi, err := os.Stat(machina.LinuxBinDir); err != nil || !fi.IsDir() {
+		return fmt.Errorf("installation is only supported on systems that store executables in %s", machina.LinuxBinDir)
 	}
 
 	program := filepath.Base(filepath.Clean(os.Args[0]))
@@ -29,24 +31,24 @@ func (cmd InstallCmd) Run(ctx context.Context) error {
 			return fmt.Errorf("failed to determine absolute path for %s", os.Args[0])
 		}
 
-		dest := filepath.Join(linuxBinDir, program)
+		dest := filepath.Join(machina.LinuxBinDir, program)
 		if err := copyFile(source, dest); err != nil {
 			return err
 		}
 	}
 
 	// Prepare symlinks
-	if err := makeSymlink(program, filepath.Join(linuxBinDir, program+"-ifup")); err != nil {
+	if err := makeSymlink(program, filepath.Join(machina.LinuxBinDir, program+"-ifup")); err != nil {
 		return err
 	}
-	if err := makeSymlink(program, filepath.Join(linuxBinDir, program+"-ifdown")); err != nil {
+	if err := makeSymlink(program, filepath.Join(machina.LinuxBinDir, program+"-ifdown")); err != nil {
 		return err
 	}
 
 	// Add a bash autocomplete file
-	if fi, err := os.Stat(linuxBashCompletionDir); err == nil && fi.IsDir() {
-		programPath := filepath.Join(linuxBinDir, program)
-		completionFilePath := filepath.Join(linuxBashCompletionDir, program)
+	if fi, err := os.Stat(machina.LinuxBashCompletionDir); err == nil && fi.IsDir() {
+		programPath := filepath.Join(machina.LinuxBinDir, program)
+		completionFilePath := filepath.Join(machina.LinuxBashCompletionDir, program)
 		completionCommand := fmt.Sprintf("complete -C %s machina\n", programPath)
 		writeFile(completionFilePath, completionCommand)
 	}

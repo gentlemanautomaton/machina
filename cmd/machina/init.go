@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+
+	"github.com/gentlemanautomaton/machina"
 )
 
 // InitCmd initializes machina on the local machine.
@@ -22,11 +24,11 @@ func (cmd InitCmd) Run(ctx context.Context) error {
 
 func initSystem() error {
 	// Ensure that the various configuration directories exist
-	if err := initDir(linuxConfDir); err != nil {
+	if err := initDir(machina.LinuxConfDir); err != nil {
 		return err
 	}
 
-	if err := initDir(linuxMachineDir); err != nil {
+	if err := initDir(machina.LinuxMachineDir); err != nil {
 		return err
 	}
 
