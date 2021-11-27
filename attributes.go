@@ -1,8 +1,6 @@
 package machina
 
 import (
-	"path"
-
 	"github.com/gentlemanautomaton/machina/qemu/qguest"
 )
 
@@ -134,8 +132,21 @@ func overlayEntitlements(merged, overlay *Entitlements) {
 
 // QMP describes the attributes of QEMU Machine Protocol support.
 type QMP struct {
-	Enabled    bool   `json:"enabled,omitempty"`
-	SocketPath string `json:"path,omitempty"`
+	Enabled bool       `json:"enabled,omitempty"`
+	Sockets QMPSockets `json:"sockets,omitempty"`
+}
+
+// QMPSockets holds a set of custom QMP sockets that will be created for a
+// virtual machine. These are in addition to the standard system and command
+// sockets provided by machina.
+//
+// Named sockets will be created in the standard machina socket directory
+// following its socket naming convention.
+//
+// Pathed sockets will be created at the given socket paths.
+type QMPSockets struct {
+	Names []string `json:"names,omitempty"`
+	Paths []string `json:"paths,omitempty"`
 }
 
 // Config adds the QEMU Machine Protocol configuration to the summary.
@@ -144,32 +155,52 @@ func (q *QMP) Config(info MachineInfo, out Summary) {
 		return
 	}
 	out.Add("QMP: Enabled")
-	if socket := q.MakeSocketPath(info); socket != "" {
+	for _, socket := range q.AllSocketPaths(info) {
 		out.Add("QMP Socket Path: %s", socket)
 	}
 }
 
-// MakeSocketPath returns the QMP socket path for the given machine.
-//
-// If machine info is non-empty and an explicit socket path has not been
-// defined, a default socket path for the machine will be returned.
-func (q *QMP) MakeSocketPath(info MachineInfo) string {
-	if q.SocketPath != "" {
-		return q.SocketPath
-	}
-	if info.Name != "" {
-		return path.Join(LinuxRunDir, string(info.Name), "qmp.socket")
-	}
-	return ""
+// SystemSocketPaths returns a set of QMP socket paths for use by
+// systemd.
+func (q *QMP) SystemSocketPaths(info MachineInfo) []string {
+	return MakeQMPSocketPaths(info, "systemd.0")
+}
+
+// CommandSocketPaths returns a set of QMP socket paths for use by
+// command line utilities.
+func (q *QMP) CommandSocketPaths(info MachineInfo) (paths []string) {
+	return MakeQMPSocketPaths(info, "command.0", "command.1")
+}
+
+// CustomSocketPaths returns a set of QMP socket paths specified in
+// the configuration. Named sockets will be returned as absolute paths in
+// the standard machina socket directory. Pathed sockets will be retured
+// verbatim.
+func (q *QMP) CustomSocketPaths(info MachineInfo) (paths []string) {
+	named := MakeQMPSocketPaths(info, q.Sockets.Names...)
+	return unionStrings(named, q.Sockets.Paths)
+}
+
+// AllSocketPaths returns the entire set of QMP socket paths for the given
+// machine. The returned paths include the standard machina system and command
+// socket paths, as well as any custom socket paths specified for the machine.
+func (q *QMP) AllSocketPaths(info MachineInfo) (paths []string) {
+	system := q.SystemSocketPaths(info)
+	command := q.CommandSocketPaths(info)
+	custom := q.CustomSocketPaths(info)
+
+	paths = unionStrings(system, command)
+	paths = unionStrings(paths, custom)
+
+	return paths
 }
 
 func overlayQMP(merged, overlay *QMP) {
 	if overlay.Enabled {
 		merged.Enabled = true
 	}
-	if overlay.SocketPath != "" {
-		merged.SocketPath = overlay.SocketPath
-	}
+	merged.Sockets.Names = unionStrings(merged.Sockets.Names, overlay.Sockets.Names)
+	merged.Sockets.Paths = unionStrings(merged.Sockets.Paths, overlay.Sockets.Paths)
 }
 
 // Agent describes the attributes of a machine's guest agent support.
@@ -239,4 +270,37 @@ func overlaySpice(merged, overlay *Spice) {
 	if overlay.Displays > 0 {
 		merged.Displays = overlay.Displays
 	}
+}
+
+func unionStrings(a []string, b []string) []string {
+	alen := len(a)
+	blen := len(b)
+	switch {
+	case alen > 0 && blen == 0:
+		return a
+	case blen > 0 && alen == 0:
+		return b
+	}
+
+	size := alen + blen
+	out := make([]string, 0, size)
+	seen := make(map[string]bool, size)
+
+	for _, value := range a {
+		if seen[value] {
+			continue
+		}
+		seen[value] = true
+		out = append(out, value)
+	}
+
+	for _, value := range b {
+		if seen[value] {
+			continue
+		}
+		seen[value] = true
+		out = append(out, value)
+	}
+
+	return out
 }

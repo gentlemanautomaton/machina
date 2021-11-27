@@ -8,16 +8,16 @@ import (
 // QMP holds QEMU Machine Protocol configuration for a QEMU virtual machine.
 type QMP struct {
 	Enabled bool
-	Device  chardev.ID
+	Devices []chardev.ID
 	Mode    string
 	Pretty  bool
 }
 
 // Parameters returns the parameters used for configuring QMP.
-func (q QMP) Parameters() qemu.Parameters {
+func (q QMP) Parameters(device chardev.ID) qemu.Parameters {
 	var params qemu.Parameters
 
-	params.Add("chardev", string(q.Device))
+	params.Add("chardev", string(device))
 	if q.Mode != "" {
 		params.Add("mode", q.Mode)
 	}
@@ -35,5 +35,10 @@ func (q QMP) Options() qemu.Options {
 		return nil
 	}
 
-	return qemu.Options{{Type: "mon", Parameters: q.Parameters()}}
+	var opts qemu.Options
+	for _, device := range q.Devices {
+		opts.Add("mon", q.Parameters(device)...)
+	}
+
+	return opts
 }
