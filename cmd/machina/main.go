@@ -29,14 +29,16 @@ func main() {
 	var cli struct {
 		Install    InstallCmd    `kong:"cmd,help='Installs the machina command in the system path.'"`
 		Init       InitCmd       `kong:"cmd,help='Prepares the system-wide machina configuration directories.'"`
-		List       ListCmd       `kong:"cmd,help='Lists all of the virtual machines present.'"`
 		Cat        CatCmd        `kong:"cmd,help='Displays the machina configuration for virtual machines.'"`
+		List       ListCmd       `kong:"cmd,help='Lists all of the virtual machines present.'"`
 		Status     StatusCmd     `kong:"cmd,help='Displays the systemd unit status for virtual machines.'"`
+		Observe    ObserveCmd    `kong:"cmd,help='Reports QMP events for virtual machines.'"`
 		Generate   GenerateCmd   `kong:"cmd,help='Generates systemd unit configuration files from /etc/machina/machine.conf.d/*.conf.json.'"`
 		Enable     EnableCmd     `kong:"cmd,help='Enables the systemd units for virtual machines.'"`
 		Disable    DisableCmd    `kong:"cmd,help='Disables the systemd units for virtual machines.'"`
 		Start      StartCmd      `kong:"cmd,help='Starts the systemd units for virtual machines.'"`
 		Stop       StopCmd       `kong:"cmd,help='Stops the systemd units for virtual machines.'"`
+		Shutdown   ShutdownCmd   `kong:"cmd,help='Sends a shutdown command to one or more virtual machines.'"`
 		Prepare    PrepareCmd    `kong:"cmd,help='Prepares the host environment for a virtual machine to start.'"`
 		Teardown   TeardownCmd   `kong:"cmd,help='Removes host resources prepared for a virtual machine.'"`
 		Connect    ConnectCmd    `kong:"cmd,help='Connects a whole virtual machine or individual connections to the network.'"`
