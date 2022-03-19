@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+
+	"github.com/gentlemanautomaton/machina"
 )
 
 // CatCmd prints configuration for the requested virtual machines.
@@ -19,12 +21,13 @@ func (cmd CatCmd) Run(ctx context.Context) error {
 
 	var results []result
 
+	sys, sysErr := LoadSystem()
+
 	for _, name := range cmd.Machines {
 		switch name {
 		case "system":
-			sys, err := LoadSystem()
-			if err != nil {
-				return fmt.Errorf("failed to load system configuration: %v", err)
+			if sysErr != nil {
+				return fmt.Errorf("failed to load system configuration: %w", sysErr)
 			}
 
 			results = append(results, result{
@@ -35,6 +38,19 @@ func (cmd CatCmd) Run(ctx context.Context) error {
 			machine, err := LoadMachine(name)
 			if err != nil {
 				return fmt.Errorf("failed to load machine configuration for \"%s\": %v", name, err)
+			}
+
+			if sysErr == nil {
+				def, buildErr := machina.Build(machine, sys)
+				if buildErr == nil {
+					machine := machine
+					machine.Definition = def
+					results = append(results, result{
+						name:    string(machine.Name),
+						summary: machine.Summary(),
+					})
+					break
+				}
 			}
 
 			results = append(results, result{
