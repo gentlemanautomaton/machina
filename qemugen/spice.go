@@ -8,15 +8,20 @@ import (
 	"github.com/gentlemanautomaton/machina/qemu/qhost/chardev"
 )
 
-func applySpice(spice machina.Spice, t Target) error {
+func applySpice(spice machina.Spice, vars machina.Vars, t Target) error {
 	if !spice.Enabled {
 		return nil
+	}
+
+	port, err := spice.EffectivePort(vars)
+	if err != nil {
+		return fmt.Errorf("failed to determine spice port: %w", err)
 	}
 
 	// Enable the spice protocol
 	t.VM.Settings.Spice = qguest.Spice{
 		Enabled:          true,
-		Port:             spice.Port,
+		Port:             port,
 		Addr:             "127.0.0.1",
 		DisableTicketing: true,
 	}

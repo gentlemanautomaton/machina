@@ -7,6 +7,14 @@ import (
 // VolumeName is the name of a volume on a machine.
 type VolumeName string
 
+// Vars returns a volume name variable. This can be used a variable
+// for expansion.
+func (v VolumeName) Vars() Vars {
+	return Vars{
+		"volume": string(v),
+	}
+}
+
 // VolumePath is the path to a volume within a storage pool.
 type VolumePath string
 
@@ -14,6 +22,12 @@ type VolumePath string
 type Volume struct {
 	Name    VolumeName  `json:"name"`
 	Storage StorageName `json:"storage"`
+}
+
+// Vars returns a set of volume variables. These can be used as variables
+// for expansion.
+func (v Volume) Vars() Vars {
+	return v.Name.Vars()
 }
 
 // IsEmpty returns true if the volume is empty.

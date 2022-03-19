@@ -16,14 +16,14 @@ type Attributes struct {
 }
 
 // Config adds the attributes configuration to the summary.
-func (a *Attributes) Config(info MachineInfo, out Summary) {
+func (a *Attributes) Config(info MachineInfo, vars Vars, out Summary) {
 	a.Firmware.Config(out)
 	a.CPU.Config(out)
 	a.Memory.Config(out)
 	a.Entitlements.Config(out)
 	a.QMP.Config(info, out)
-	a.Agent.Config(out)
-	a.Spice.Config(out)
+	a.Agent.Config(vars, out)
+	a.Spice.Config(vars, out)
 }
 
 // MergeAttributes merges a set of attributes in order. If an attribute value
@@ -209,8 +209,8 @@ type Agent struct {
 }
 
 // Config adds the agent configuration to the summary.
-func (a *Agent) Config(out Summary) {
-	a.QEMU.Config(out)
+func (a *Agent) Config(vars Vars, out Summary) {
+	a.QEMU.Config(vars, out)
 }
 
 func overlayAgent(merged, overlay *Agent) {
@@ -220,43 +220,70 @@ func overlayAgent(merged, overlay *Agent) {
 	if overlay.QEMU.Port > 0 {
 		merged.QEMU.Port = overlay.QEMU.Port
 	}
+	if overlay.QEMU.PortPattern != "" {
+		merged.QEMU.PortPattern = overlay.QEMU.PortPattern
+	}
 }
 
 // QEMUAgent describes the attributes of a machine's QEMU guest agent.
 type QEMUAgent struct {
-	Enabled bool `json:"enabled,omitempty"`
-	Port    int  `json:"port,omitempty"`
+	Enabled     bool        `json:"enabled,omitempty"`
+	Port        int         `json:"port,omitempty"`
+	PortPattern PortPattern `json:"port-pattern,omitempty"`
+}
+
+// EffectivePort returns the configured QEMU Agent port, either through
+// explicit assignment or pattern expansion.
+func (qga QEMUAgent) EffectivePort(vars Vars) (int, error) {
+	if qga.Port != 0 {
+		return qga.Port, nil
+	}
+	return qga.PortPattern.Expand(vars.Map)
 }
 
 // Config adds the QEMU guest configuration to the summary.
-func (qga *QEMUAgent) Config(out Summary) {
+func (qga *QEMUAgent) Config(vars Vars, out Summary) {
 	if !qga.Enabled {
 		return
 	}
 	out.Add("QEMU Guest Agent: Enabled")
-	if qga.Port > 0 {
-		out.Add("QEMU Guest Agent Port: %d", qga.Port)
+	if port, err := qga.EffectivePort(vars); err != nil {
+		out.Add("QEMU Guest Agent Port: %w", err)
+	} else if port > 0 {
+		out.Add("QEMU Guest Agent Port: %d", port)
 	}
 }
 
 // Spice describes the attributes of a machine's spice protocol configuration.
 type Spice struct {
-	Enabled  bool `json:"enabled,omitempty"`
-	Port     int  `json:"port,omitempty"`
-	Displays int  `json:"displays,omitempty"` // TODO: Does this belong here?
+	Enabled     bool        `json:"enabled,omitempty"`
+	Port        int         `json:"port,omitempty"`
+	PortPattern PortPattern `json:"port-pattern,omitempty"`
+	Displays    int         `json:"displays,omitempty"` // TODO: Does this belong here?
+}
+
+// EffectivePort returns the configured spice port, either through explicit
+// assignment or pattern expansion.
+func (s Spice) EffectivePort(vars Vars) (int, error) {
+	if s.Port != 0 {
+		return s.Port, nil
+	}
+	return s.PortPattern.Expand(vars.Map)
 }
 
 // Config adds the spice configuration to the summary.
-func (d *Spice) Config(out Summary) {
-	if !d.Enabled {
+func (s *Spice) Config(vars Vars, out Summary) {
+	if !s.Enabled {
 		return
 	}
 	out.Add("Spice Display: Enabled")
-	if d.Port > 0 {
-		out.Add("Spice Port: %d", d.Port)
+	if port, err := s.EffectivePort(vars); err != nil {
+		out.Add("Spice Port: %w", err)
+	} else if port > 0 {
+		out.Add("Spice Port: %d", port)
 	}
-	if d.Displays != 0 {
-		out.Add("Spice Display Count: %d", d.Displays)
+	if s.Displays != 0 {
+		out.Add("Spice Display Count: %d", s.Displays)
 	}
 }
 
@@ -266,6 +293,9 @@ func overlaySpice(merged, overlay *Spice) {
 	}
 	if overlay.Port > 0 {
 		merged.Port = overlay.Port
+	}
+	if overlay.PortPattern != "" {
+		merged.PortPattern = overlay.PortPattern
 	}
 	if overlay.Displays > 0 {
 		merged.Displays = overlay.Displays

@@ -52,13 +52,14 @@ type StorageHandler interface {
 // VolumeSpec describes a volume within a storage pool.
 type VolumeSpec struct {
 	Machine machina.MachineInfo
+	Vars    machina.Vars
 	Volume  machina.Volume
 	Storage machina.Storage
 }
 
 // VolumePath returns the path of the volume within the storage pool.
 func (spec VolumeSpec) VolumePath() machina.VolumePath {
-	return spec.Storage.Volume(spec.Machine, spec.Volume.Name)
+	return spec.Storage.Volume(spec.Machine, spec.Vars, spec.Volume.Name)
 }
 
 type rawHandler struct{}

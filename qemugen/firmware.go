@@ -15,7 +15,7 @@ func applyFirmware(machine machina.MachineInfo, def machina.Definition, storage 
 
 	handlers := DefaultStorageHandlers()
 	{
-		codeSpec, err := makeVolumeSpec(machine, fw.Code, storage)
+		codeSpec, err := makeVolumeSpec(machine, def.Vars, fw.Code, storage)
 		if err != nil {
 			return err
 		}
@@ -28,7 +28,7 @@ func applyFirmware(machine machina.MachineInfo, def machina.Definition, storage 
 	}
 
 	if !fw.Vars.IsEmpty() {
-		varsSpec, err := makeVolumeSpec(machine, fw.Vars, storage)
+		varsSpec, err := makeVolumeSpec(machine, def.Vars, fw.Vars, storage)
 		if err != nil {
 			return err
 		}
@@ -41,7 +41,7 @@ func applyFirmware(machine machina.MachineInfo, def machina.Definition, storage 
 	}
 
 	target.VM.Settings.Globals.Add("cfi.pflash01", "secure", "on")
-	applyVolumes(machine, vols, storage, target)
+	applyVolumes(machine, def.Vars, vols, storage, target)
 
 	return nil
 }

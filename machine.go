@@ -65,6 +65,16 @@ type MachineInfo struct {
 	Name        MachineName
 }
 
+// Vars returns a set of identifying machine variables. These can be used
+// as variables for expansion.
+func (info MachineInfo) Vars() Vars {
+	return Vars{
+		"machine-name":        string(info.Name),
+		"machine-description": info.Description,
+		"machine-id":          info.ID.String(),
+	}
+}
+
 // MachineName is the name of a machina virtual machine.
 //
 // TODO: Document restrictions on machine names and add validity checks.

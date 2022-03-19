@@ -28,10 +28,10 @@ func Build(m machina.Machine, sys machina.System) (qvm.Definition, error) {
 	if err := applyFirmware(m.Info(), def, sys.Storage, target); err != nil {
 		return qvm.Definition{}, err
 	}
-	if err := applyAttributes(m.Info(), def.Attributes, target); err != nil {
+	if err := applyAttributes(m.Info(), def.Vars, def.Attributes, target); err != nil {
 		return qvm.Definition{}, err
 	}
-	if err := applyVolumes(m.Info(), def.Volumes, sys.Storage, target); err != nil {
+	if err := applyVolumes(m.Info(), def.Vars, def.Volumes, sys.Storage, target); err != nil {
 		return qvm.Definition{}, err
 	}
 	if err := applyConnections(m.Name, def.Connections, sys.Network, target); err != nil {
@@ -53,7 +53,7 @@ func applyDefaults(vm *qvm.Definition) error {
 	return nil
 }
 
-func applyAttributes(machine machina.MachineInfo, attrs machina.Attributes, target Target) error {
+func applyAttributes(machine machina.MachineInfo, vars machina.Vars, attrs machina.Attributes, target Target) error {
 	// Apply CPU attributes
 	if sockets := attrs.CPU.Sockets; sockets > 0 {
 		target.VM.Settings.Processor.Sockets = sockets
@@ -76,12 +76,12 @@ func applyAttributes(machine machina.MachineInfo, attrs machina.Attributes, targ
 	}
 
 	// Apply guest agent attributes
-	if err := applyQEMUAgent(attrs.Agent.QEMU, target); err != nil {
+	if err := applyQEMUAgent(attrs.Agent.QEMU, vars, target); err != nil {
 		return err
 	}
 
 	// Apply spice protocol attributes
-	if err := applySpice(attrs.Spice, target); err != nil {
+	if err := applySpice(attrs.Spice, vars, target); err != nil {
 		return err
 	}
 

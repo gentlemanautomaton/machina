@@ -2,6 +2,7 @@ package qemugen
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gentlemanautomaton/machina"
 	"github.com/gentlemanautomaton/machina/qemu/qhost/chardev"
@@ -9,12 +10,17 @@ import (
 
 // https://wiki.qemu.org/Features/GuestAgent
 
-func applyQEMUAgent(qga machina.QEMUAgent, t Target) error {
+func applyQEMUAgent(qga machina.QEMUAgent, vars machina.Vars, t Target) error {
 	if !qga.Enabled {
 		return nil
 	}
 
-	if qga.Port == 0 {
+	port, err := qga.EffectivePort(vars)
+	if err != nil {
+		return fmt.Errorf("failed to determine QEMU Agent port: %w", err)
+	}
+
+	if port == 0 {
 		return errors.New("missing QEMU guest agent port")
 	}
 
@@ -25,7 +31,7 @@ func applyQEMUAgent(qga machina.QEMUAgent, t Target) error {
 	socket, err := chardev.TCPSocket{
 		ID:      chardev.ID("guestagent"),
 		Host:    chardev.SocketHost("127.0.0.1"),
-		Port:    chardev.SocketPort(qga.Port),
+		Port:    chardev.SocketPort(port),
 		Server:  true,
 		NoWait:  true,
 		NoDelay: true,

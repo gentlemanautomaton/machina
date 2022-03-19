@@ -6,7 +6,7 @@ import (
 	"github.com/gentlemanautomaton/machina"
 )
 
-func applyVolumes(machine machina.MachineInfo, vols []machina.Volume, storage machina.StorageMap, target Target) error {
+func applyVolumes(machine machina.MachineInfo, vars machina.Vars, vols []machina.Volume, storage machina.StorageMap, target Target) error {
 	if len(vols) == 0 {
 		return nil
 	}
@@ -16,7 +16,7 @@ func applyVolumes(machine machina.MachineInfo, vols []machina.Volume, storage ma
 
 	// Add a drive and device for each volume.
 	for _, volume := range vols {
-		spec, err := makeVolumeSpec(machine, volume, storage)
+		spec, err := makeVolumeSpec(machine, vars, volume, storage)
 		if err != nil {
 			return err
 		}
@@ -29,7 +29,7 @@ func applyVolumes(machine machina.MachineInfo, vols []machina.Volume, storage ma
 	return nil
 }
 
-func makeVolumeSpec(machine machina.MachineInfo, volume machina.Volume, storage machina.StorageMap) (VolumeSpec, error) {
+func makeVolumeSpec(machine machina.MachineInfo, vars machina.Vars, volume machina.Volume, storage machina.StorageMap) (VolumeSpec, error) {
 	store, ok := storage[volume.Storage]
 	if !ok {
 		return VolumeSpec{}, fmt.Errorf("volume %s uses an unspecified machina storage pool: %s", volume.Name, volume.Storage)
@@ -37,6 +37,7 @@ func makeVolumeSpec(machine machina.MachineInfo, volume machina.Volume, storage 
 
 	return VolumeSpec{
 		Machine: machine,
+		Vars:    vars,
 		Volume:  volume,
 		Storage: store,
 	}, nil

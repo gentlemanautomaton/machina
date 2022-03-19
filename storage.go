@@ -1,7 +1,6 @@
 package machina
 
 import (
-	"os"
 	"path"
 )
 
@@ -15,25 +14,14 @@ type StoragePath string
 type StorageType string
 
 // StoragePattern is a file storage naming pattern.
-type StoragePattern string
+type StoragePattern StringPattern
 
 // Expand returns the storage path for the given machine and volume.
 //
 // TODO: Consider allowing other attributes or arbitrary values to be used
 // as variables.
-func (p StoragePattern) Expand(machine MachineInfo, vol VolumeName) StoragePath {
-	path := os.Expand(string(p), func(s string) string {
-		switch s {
-		case "name":
-			return string(machine.Name)
-		case "id":
-			return machine.ID.String()
-		case "volume":
-			return string(vol)
-		}
-		return ""
-	})
-	return StoragePath(path)
+func (p StoragePattern) Expand(mapper PatternMapper) StoragePath {
+	return StoragePath(StringPattern(p).Expand(mapper))
 }
 
 // Storage types.
@@ -55,11 +43,11 @@ type Storage struct {
 type StorageMap map[StorageName]Storage
 
 // Volume returns the path of a volume.
-func (s Storage) Volume(machine MachineInfo, volume VolumeName) VolumePath {
+func (s Storage) Volume(machine MachineInfo, vars Vars, volume VolumeName) VolumePath {
 	var p StoragePath
 	switch {
 	case s.Pattern != "":
-		p = s.Pattern.Expand(machine, volume)
+		p = s.Pattern.Expand(MergeVars(machine.Vars(), volume.Vars(), vars).Map)
 	case s.Type != "":
 		p = StoragePath(volume) + "." + StoragePath(s.Type)
 	default:
