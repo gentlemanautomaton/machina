@@ -6,13 +6,13 @@ import (
 
 // Attributes describe various attributes of a machine.
 type Attributes struct {
-	Firmware     Firmware     `json:"firmware,omitempty"`
-	CPU          CPU          `json:"cpu,omitempty"`
-	Memory       Memory       `json:"memory,omitempty"`
-	Entitlements Entitlements `json:"entitlements,omitempty"`
-	QMP          QMP          `json:"qmp,omitempty"`
-	Agent        Agent        `json:"agent,omitempty"`
-	Spice        Spice        `json:"spice,omitempty"`
+	Firmware       Firmware       `json:"firmware,omitempty"`
+	CPU            CPU            `json:"cpu,omitempty"`
+	Memory         Memory         `json:"memory,omitempty"`
+	Enlightenments Enlightenments `json:"enlightenments,omitempty"`
+	QMP            QMP            `json:"qmp,omitempty"`
+	Agent          Agent          `json:"agent,omitempty"`
+	Spice          Spice          `json:"spice,omitempty"`
 }
 
 // Config adds the attributes configuration to the summary.
@@ -20,7 +20,7 @@ func (a *Attributes) Config(info MachineInfo, vars Vars, out Summary) {
 	a.Firmware.Config(out)
 	a.CPU.Config(out)
 	a.Memory.Config(out)
-	a.Entitlements.Config(out)
+	a.Enlightenments.Config(out)
 	a.QMP.Config(info, out)
 	a.Agent.Config(vars, out)
 	a.Spice.Config(vars, out)
@@ -34,7 +34,7 @@ func MergeAttributes(attrs ...Attributes) Attributes {
 		overlayFirmware(&merged.Firmware, &attrs[i].Firmware)
 		overlayCPU(&merged.CPU, &attrs[i].CPU)
 		overlayMemory(&merged.Memory, &attrs[i].Memory)
-		overlayEntitlements(&merged.Entitlements, &attrs[i].Entitlements)
+		overlayEnlightenments(&merged.Enlightenments, &attrs[i].Enlightenments)
 		overlayQMP(&merged.QMP, &attrs[i].QMP)
 		overlayAgent(&merged.Agent, &attrs[i].Agent)
 		overlaySpice(&merged.Spice, &attrs[i].Spice)
@@ -110,21 +110,21 @@ func overlayMemory(merged, overlay *Memory) {
 	}
 }
 
-// Entitlements describe Hyper-V features for guests running Windows.
+// Enlightenments describe Hyper-V features for guests running Windows.
 //
 // https://github.com/qemu/qemu/blob/master/docs/hyperv.txt
-type Entitlements struct {
+type Enlightenments struct {
 	Enabled bool `json:"enabled,omitempty"`
 }
 
-// Config adds the entitlements configuration to the summary.
-func (e *Entitlements) Config(out Summary) {
+// Config adds the enlightenments configuration to the summary.
+func (e *Enlightenments) Config(out Summary) {
 	if e.Enabled {
-		out.Add("Hyper-V Entitlements: Enabled")
+		out.Add("Hyper-V Enlightenments: Enabled")
 	}
 }
 
-func overlayEntitlements(merged, overlay *Entitlements) {
+func overlayEnlightenments(merged, overlay *Enlightenments) {
 	if overlay.Enabled {
 		merged.Enabled = overlay.Enabled
 	}

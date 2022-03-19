@@ -15,7 +15,7 @@ type Processor struct {
 }
 
 // CPU returns the parameters of the CPU configuration. It includes any
-// processor entitlements.
+// processor enlightenments.
 func (p Processor) CPU() qemu.Parameters {
 	params := qemu.Parameters{{Name: "host"}}
 	if p.HyperV {

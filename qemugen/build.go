@@ -61,7 +61,7 @@ func applyAttributes(machine machina.MachineInfo, vars machina.Vars, attrs machi
 	if cores := attrs.CPU.Cores; cores > 0 {
 		target.VM.Settings.Processor.Cores = cores
 	}
-	if attrs.Entitlements.Enabled {
+	if attrs.Enlightenments.Enabled {
 		target.VM.Settings.Processor.HyperV = true
 	}
 
