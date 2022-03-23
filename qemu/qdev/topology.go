@@ -57,8 +57,8 @@ func (t *Topology) AddRoot() (*Root, error) {
 	return root, nil
 }
 
-// AddQXL connects a PCI Express QXL display device to the PCI Express
-// Root Port.
+// AddQXL connects a PCI Express QXL display device to the PCI Express Root
+// Complex.
 func (t *Topology) AddQXL() (*QXL, error) {
 	index, err := t.allocate()
 	if err != nil {

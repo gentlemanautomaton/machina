@@ -47,7 +47,7 @@ func (m BusMap) Count(name string) int {
 	return m[name]
 }
 
-// Addr is an address on a PCI bus.
+// Addr is an address on a PCI or PCIe bus.
 type Addr struct {
 	Slot     int
 	Function int
