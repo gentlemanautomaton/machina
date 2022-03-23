@@ -59,7 +59,7 @@ func (controller *SCSI) Devices() []Device {
 }
 
 // AddDisk connects a SCSI HD device to the Virtio SCSI Controller.
-func (controller *SCSI) AddDisk(bdev blockdev.Node) (SCSIHD, error) {
+func (controller *SCSI) AddDisk(bdev blockdev.Node, options ...SCSIHDOption) (SCSIHD, error) {
 	index, err := controller.allocate()
 	if err != nil {
 		return SCSIHD{}, err
@@ -72,6 +72,9 @@ func (controller *SCSI) AddDisk(bdev blockdev.Node) (SCSIHD, error) {
 		scsiID:   0,
 		lun:      index,
 		blockdev: bdev.Name(),
+	}
+	for _, opt := range options {
+		opt.applySCSIHD(&disk)
 	}
 	controller.devices = append(controller.devices, disk)
 
@@ -106,14 +109,20 @@ func (controller *SCSI) allocate() (index int, err error) {
 	return len(controller.devices), nil
 }
 
+// SCSIHDOption is an option for a SCSI HD device
+type SCSIHDOption interface {
+	applySCSIHD(*SCSIHD)
+}
+
 // SCSIHD is a SCSI hard disk device.
 type SCSIHD struct {
-	id       ID
-	bus      ID
-	channel  int
-	scsiID   int
-	lun      int
-	blockdev blockdev.NodeName
+	id        ID
+	bus       ID
+	channel   int
+	scsiID    int
+	lun       int
+	blockdev  blockdev.NodeName
+	bootIndex BootIndex
 }
 
 // Driver returns the driver for the SCSI HD device, scsi-hd.
@@ -123,7 +132,7 @@ func (disk SCSIHD) Driver() Driver {
 
 // Properties returns the properties of the SCSI HD device.
 func (disk SCSIHD) Properties() Properties {
-	return Properties{
+	props := Properties{
 		{Name: string(disk.Driver())},
 		{Name: "id", Value: string(disk.id)},
 		{Name: "bus", Value: string(disk.bus)},
@@ -132,6 +141,10 @@ func (disk SCSIHD) Properties() Properties {
 		{Name: "lun", Value: strconv.Itoa(disk.lun)},
 		{Name: "drive", Value: string(disk.blockdev)},
 	}
+	if disk.bootIndex > 0 {
+		props.Add("bootindex", disk.bootIndex.String())
+	}
+	return props
 }
 
 // SCSICD is a SCSI CD-ROM device.
