@@ -17,7 +17,7 @@ func Build(m machina.Machine, sys machina.System) (qvm.Definition, error) {
 
 	vm := qvm.Definition{}
 	controllers := qdev.NewControllerMap(&vm.Topology)
-	target := Target{VM: &vm, Controllers: controllers}
+	target := Target{VM: &vm, Controllers: controllers, BootOrder: new(qdev.BootOrder)}
 
 	if err := applyDefaults(&vm); err != nil {
 		return qvm.Definition{}, err

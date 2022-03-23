@@ -10,4 +10,5 @@ import (
 type Target struct {
 	VM          *qvm.Definition
 	Controllers *qdev.ControllerMap
+	BootOrder   *qdev.BootOrder
 }

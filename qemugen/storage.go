@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gentlemanautomaton/machina"
+	"github.com/gentlemanautomaton/machina/qemu/qdev"
 	"github.com/gentlemanautomaton/machina/qemu/qhost"
 	"github.com/gentlemanautomaton/machina/qemu/qhost/blockdev"
 )
@@ -108,8 +109,14 @@ func (h rawHandler) Apply(spec VolumeSpec, t Target) error {
 		return err
 	}
 
+	// Prepare the SCSI HD device options.
+	var options []qdev.SCSIHDOption
+	if spec.Volume.Bootable {
+		options = append(options, t.BootOrder.Next())
+	}
+
 	// Add a SCSI HD device for this volume to the controller
-	if _, err := scsi.AddDisk(format); err != nil {
+	if _, err := scsi.AddDisk(format, options...); err != nil {
 		return err
 	}
 

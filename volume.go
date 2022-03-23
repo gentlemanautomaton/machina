@@ -20,8 +20,9 @@ type VolumePath string
 
 // Volume describes a storage volume for a machine.
 type Volume struct {
-	Name    VolumeName  `json:"name"`
-	Storage StorageName `json:"storage"`
+	Name     VolumeName  `json:"name"`
+	Storage  StorageName `json:"storage"`
+	Bootable bool        `json:"bootable"`
 }
 
 // Vars returns a set of volume variables. These can be used as variables
@@ -37,6 +38,9 @@ func (v Volume) IsEmpty() bool {
 
 // String returns a string representation of the volume configuration.
 func (v Volume) String() string {
+	if v.Bootable {
+		return fmt.Sprintf("%s: %s (bootable)", v.Name, v.Storage)
+	}
 	return fmt.Sprintf("%s: %s", v.Name, v.Storage)
 }
 
