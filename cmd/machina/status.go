@@ -16,4 +16,8 @@ func (cmd StatusCmd) Run(ctx context.Context) error {
 		return err
 	}
 	return systemctl(ctx, "status", units)
+
+	// TODO: Consider direct dbus calls instead of shelling out to systemctl
+	//
+	// https://github.com/systemd/systemd/blob/dc131951b5f903b698f624a0234560d7a822ff21/src/systemctl/systemctl-show.c#L298
 }
