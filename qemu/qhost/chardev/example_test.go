@@ -65,7 +65,7 @@ func Example() {
 
 	// Output:
 	// -chardev socket,id=unix-socket,path=~/guest-os.0.socket
-	// -chardev socket,id=tcp-socket,host=127.0.0.1,port=9000,server,nowait,nodelay
+	// -chardev socket,id=tcp-socket,host=127.0.0.1,port=9000,server=on,wait=off,nodelay=on
 	// -chardev spicevmc,id=vdagent,debug=0,name=vdagent
 	// -chardev spicevmc,id=usbredir.0,debug=0,name=usbredir
 	// -chardev spicevmc,id=usbredir.1,debug=0,name=usbredir

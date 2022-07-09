@@ -40,7 +40,7 @@ func (s Spice) Parameters() qemu.Parameters {
 		params.Add("addr", s.Addr)
 	}
 	if s.DisableTicketing {
-		params.AddValue("disable-ticketing")
+		params.Add("disable-ticketing", "on")
 	}
 	if s.DisableCopyPaste {
 		params.AddValue("disable-copy-paste")

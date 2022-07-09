@@ -85,16 +85,16 @@ func (s UnixSocketDevice) Properties() Properties {
 		{Name: "id", Value: string(s.opts.ID)},
 	}
 	if s.opts.Server {
-		props.AddValue("server")
+		props.Add("server", "on")
 	}
 	if s.opts.NoWait {
-		props.AddValue("nowait")
+		props.Add("wait", "off")
 	}
 	if s.opts.Telnet {
-		props.AddValue("telnet")
+		props.Add("telnet", "on")
 	}
 	if s.opts.WebSocket {
-		props.AddValue("websocket")
+		props.Add("websocket", "on")
 	}
 	if s.opts.Reconnect > 0 {
 		seconds := int(s.opts.Reconnect / time.Second)
@@ -104,10 +104,10 @@ func (s UnixSocketDevice) Properties() Properties {
 		props.Add("reconnect", strconv.Itoa(seconds))
 	}
 	if s.opts.Mux {
-		props.AddValue("mux")
+		props.Add("mux", "on")
 	}
 	if s.opts.LogAppend {
-		props.AddValue("logappend")
+		props.Add("logappend", "on")
 	}
 	if s.opts.LogFile != "" {
 		props.Add("logfile", string(s.opts.LogFile))

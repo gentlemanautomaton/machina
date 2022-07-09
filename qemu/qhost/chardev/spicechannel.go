@@ -83,10 +83,10 @@ func (s SpiceChannelDevice) Properties() Properties {
 		{Name: "debug", Value: strconv.Itoa(s.opts.Debug)},
 	}
 	if s.opts.Mux {
-		props.AddValue("mux")
+		props.Add("mux", "on")
 	}
 	if s.opts.LogAppend {
-		props.AddValue("logappend")
+		props.Add("logappend", "on")
 	}
 	if s.opts.LogFile != "" {
 		props.Add("logfile", string(s.opts.LogFile))
