@@ -17,9 +17,11 @@ func Build(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section
 	quotedName := QuoteArg(string(machine.Name))
 	return []systemdconf.Section{
 		systemdconf.Unit{
-			Description: fmt.Sprintf("machina KVM %s", machine.Name),
-			After:       []string{"network-online.target"},
-			Wants:       []string{"network-online.target"},
+			Description:        fmt.Sprintf("machina KVM %s", machine.Name),
+			After:              []string{"network-online.target"},
+			Wants:              []string{"network-online.target"},
+			StartLimitInterval: time.Minute,
+			StartLimitBurst:    2,
 		},
 		systemdconf.Service{
 			Type:         "simple",
@@ -28,6 +30,7 @@ func Build(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section
 			//ExecStop:     []string{fmt.Sprintf("machina stop %s", quotedName)},
 			ExecStopPost:       []string{fmt.Sprintf("machina teardown %s", quotedName)},
 			TimeoutStop:        time.Minute,
+			RestartInterval:    time.Second * 10,
 			Restart:            unitvalue.RestartOnFailure,
 			RuntimeDirectories: []string{path.Join("machina", string(machine.Name))},
 		},
