@@ -79,8 +79,7 @@ func (c *Client) Connect(conn net.Conn, timeout time.Duration) error {
 	}
 
 	// Collect the greeting from the server
-	var greeting Greeting
-	if err := dec.Decode(&greeting); err != nil {
+	if err := dec.Decode(&c.greeting); err != nil {
 		if errors.Is(c.connState.Err(), os.ErrDeadlineExceeded) {
 			return fmt.Errorf("a QMP greeting was not received within %s: %w", timeout, err)
 		}
