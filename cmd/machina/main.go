@@ -43,6 +43,7 @@ func main() {
 		Teardown   TeardownCmd   `kong:"cmd,help='Removes host resources prepared for a virtual machine.'"`
 		Connect    ConnectCmd    `kong:"cmd,help='Connects a whole virtual machine or individual connections to the network.'"`
 		Disconnect DisconnectCmd `kong:"cmd,help='Disconnects a whole virtual machine or individual connections from the network.'"`
+		Query      QueryCmd      `kong:"cmd,help='Queries virtual machines via the QMP protocol.'"`
 		GenID      GenIDCmd      `kong:"cmd,name='gen-id',help='Generate a random machine identifier.'"`
 		GenMAC     GenMACCmd     `kong:"cmd,name='gen-mac',help='Generate a random MAC hardware address.'"`
 		Args       ArgsCmd       `kong:"cmd,help='Displays the QEMU arguments for virtual machines.'"`
