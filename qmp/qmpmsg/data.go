@@ -17,7 +17,7 @@ func (m *Data) Bytes() []byte {
 	return m.bytes
 }
 
-// UnmarshalJSON copies the given JSON data to the respones.
+// UnmarshalJSON copies the given JSON bytes to m.
 func (m *Data) UnmarshalJSON(b []byte) error {
 	// If the response exceeds our buffer, begrudgingly allocate data on the heap
 	m.size = len(b)
