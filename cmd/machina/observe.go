@@ -49,13 +49,17 @@ func (cmd ObserveCmd) Run(ctx context.Context) error {
 				event, err := listener.Receive(ctx)
 				if err != nil {
 					if err == context.DeadlineExceeded || err == context.Canceled || err == io.EOF {
-						fmt.Printf("%s: Closed\n", name)
+						fmt.Printf("%s: QMP socket closed.\n", name)
 						return
 					}
 					fmt.Printf("%s: %v\n", name, err)
 					return
 				}
-				fmt.Printf("%s: %s: %s\n", name, event.Event, event.Data.Bytes())
+				if data := event.Data.Bytes(); len(data) > 0 {
+					fmt.Printf("%s: %s: %s\n", name, event.Event, string(data))
+				} else {
+					fmt.Printf("%s: %s\n", name, event.Event)
+				}
 			}
 		}(i)
 	}

@@ -14,6 +14,10 @@ import (
 // Build returns a set of systemd unit configuration sections for machine
 // with the given options.
 func Build(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section {
+	const (
+		serviceTimeout  = time.Second * 90
+		shutdownTimeout = serviceTimeout - (time.Second * 5)
+	)
 	quotedName := QuoteArg(string(machine.Name))
 	return []systemdconf.Section{
 		systemdconf.Unit{
@@ -24,12 +28,12 @@ func Build(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section
 			StartLimitBurst:    2,
 		},
 		systemdconf.Service{
-			Type:         "simple",
-			ExecStartPre: []string{fmt.Sprintf("machina prepare %s", quotedName)},
-			ExecStart:    []string{fmt.Sprintf("qemu-system-x86_64 \\\n%s", QuoteOptions(opts))},
-			//ExecStop:     []string{fmt.Sprintf("machina stop %s", quotedName)},
+			Type:               "simple",
+			ExecStartPre:       []string{fmt.Sprintf("machina prepare %s", quotedName)},
+			ExecStart:          []string{fmt.Sprintf("qemu-system-x86_64 \\\n%s", QuoteOptions(opts))},
+			ExecStop:           []string{fmt.Sprintf("machina shutdown --system --timeout %s %s", shutdownTimeout, quotedName)},
 			ExecStopPost:       []string{fmt.Sprintf("machina teardown %s", quotedName)},
-			TimeoutStop:        time.Minute,
+			TimeoutStop:        serviceTimeout,
 			RestartInterval:    time.Second * 10,
 			Restart:            unitvalue.RestartOnFailure,
 			RuntimeDirectories: []string{path.Join("machina", string(machine.Name))},
