@@ -24,6 +24,17 @@ func (c Connection) String() string {
 	return fmt.Sprintf("%s: %s (ip: %s, mac: %s)", c.Name, c.Network, c.IP, c.MAC)
 }
 
+// Populate returns a copy of the connection with a hardware address, if one is
+// not already present.
+//
+// The provided machine seed is used to generate the address.
+func (c Connection) Populate(seed Seed) Connection {
+	if c.MAC == "" && c.Name != "" {
+		c.MAC = seed.HardwareAddr([]byte("connection"), []byte("hardware-addr"), []byte(c.Name)).String()
+	}
+	return c
+}
+
 // Config adds the connection configuration to the summary.
 func (c *Connection) Config(out Summary) {
 	out.Add("%s", c)

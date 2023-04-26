@@ -72,6 +72,17 @@ func (d Device) String() string {
 	return fmt.Sprintf("%s: %s (%s)", d.Name, d.Class, d.ID)
 }
 
+// Populate returns a copy of the device with a device ID, if one is not already
+// present.
+//
+// The provided machine seed is used to generate the device ID.
+func (d Device) Populate(seed Seed) Device {
+	if d.ID.IsZero() {
+		d.ID = seed.DeviceID([]byte("device"), []byte("id"), []byte(d.Class), []byte(d.Name))
+	}
+	return d
+}
+
 // Config adds the device configuration to the summary.
 func (d Device) Config(out Summary) {
 	out.Add("%s", d)

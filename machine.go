@@ -65,6 +65,11 @@ type MachineInfo struct {
 	Name        MachineName
 }
 
+// Seed returns an identity generation seed for the machine info.
+func (info MachineInfo) Seed() Seed {
+	return Seed{info: info}
+}
+
 // Vars returns a set of identifying machine variables. These can be used
 // as variables for expansion.
 func (info MachineInfo) Vars() Vars {
