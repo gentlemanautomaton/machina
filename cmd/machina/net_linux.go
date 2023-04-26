@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 // https://github.com/gentlemanautomaton/vmcore-systemd/blob/master/bin/kvm-ifup.sh
