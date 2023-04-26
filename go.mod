@@ -11,6 +11,7 @@ require (
 	github.com/posener/complete v1.2.3
 	github.com/vishvananda/netlink v1.1.0
 	github.com/willabides/kongplete v0.3.0
+	golang.org/x/crypto v0.8.0
 )
 
 require (

@@ -1,9 +1,10 @@
 package machina
 
 import (
-	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+
+	"golang.org/x/crypto/sha3"
 )
 
 // ConnectionName is the name of a network connection on a machine.
@@ -68,7 +69,7 @@ func MakeLinkName(machine MachineName, conn Connection) string {
 
 // hashLinkName returns a 15 character base64-encoded hash of name.
 func hashLinkName(name string) string {
-	hasher := sha256.New()
+	hasher := sha3.New224()
 	hasher.Write([]byte(name))
 	hashed := hasher.Sum(nil)
 	return base64.RawURLEncoding.EncodeToString(hashed[0:11])
