@@ -14,16 +14,21 @@ func Build(m Machine, sys System) (merged Definition, err error) {
 
 	// Merge the machine's definition with its tag definitions
 	defs = append([]Definition{m.Definition}, defs...)
-	out := MergeDefinitions(defs...)
+	merged = MergeDefinitions(defs...)
 
-	// Generate device IDs and hardware addresses as necessary
+	// Generate world wide names, device IDs and hardware addresses as
+	// necessary. Use the machine's identifiers as a seed state for
+	// deterministic generation of values.
 	seed := m.Info().Seed()
-	for i, conn := range out.Connections {
-		out.Connections[i] = conn.Populate(seed)
+	for i, volume := range merged.Volumes {
+		merged.Volumes[i] = volume.Populate(seed)
 	}
-	for i, device := range out.Devices {
-		out.Devices[i] = device.Populate(seed)
+	for i, conn := range merged.Connections {
+		merged.Connections[i] = conn.Populate(seed)
+	}
+	for i, device := range merged.Devices {
+		merged.Devices[i] = device.Populate(seed)
 	}
 
-	return out, nil
+	return merged, nil
 }

@@ -111,6 +111,9 @@ func (h rawHandler) Apply(spec VolumeSpec, t Target) error {
 
 	// Prepare the SCSI HD device options.
 	var options []qdev.SCSIHDOption
+	if !spec.Volume.WWN.IsZero() {
+		options = append(options, qdev.WWN(spec.Volume.WWN))
+	}
 	if spec.Volume.Bootable {
 		options = append(options, t.BootOrder.Next())
 	}

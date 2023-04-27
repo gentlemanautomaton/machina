@@ -2,6 +2,9 @@ package machina
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/gentlemanautomaton/machina/wwn"
 )
 
 // VolumeName is the name of a volume on a machine.
@@ -22,6 +25,7 @@ type VolumePath string
 type Volume struct {
 	Name     VolumeName  `json:"name"`
 	Storage  StorageName `json:"storage"`
+	WWN      wwn.Value   `json:"wwn"`
 	Bootable bool        `json:"bootable"`
 }
 
@@ -38,10 +42,28 @@ func (v Volume) IsEmpty() bool {
 
 // String returns a string representation of the volume configuration.
 func (v Volume) String() string {
+	var notations []string
+	if !v.WWN.IsZero() {
+		notations = append(notations, "wwn: "+v.WWN.String())
+	}
 	if v.Bootable {
-		return fmt.Sprintf("%s: %s (bootable)", v.Name, v.Storage)
+		notations = append(notations, "bootable")
+	}
+	if len(notations) > 0 {
+		return fmt.Sprintf("%s: %s (%s)", v.Name, v.Storage, strings.Join(notations, ", "))
 	}
 	return fmt.Sprintf("%s: %s", v.Name, v.Storage)
+}
+
+// Populate returns a copy of the volume with a world wide name, if one is
+// not already present.
+//
+// The provided machine seed is used to generate the address.
+func (v Volume) Populate(seed Seed) Volume {
+	if v.WWN.IsZero() && v.Name != "" {
+		v.WWN = seed.WWN([]byte("volume"), []byte("wwn"), []byte(v.Name))
+	}
+	return v
 }
 
 // Config adds the volume configuration to the summary.

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gentlemanautomaton/machina/qemu/qhost"
 	"github.com/gentlemanautomaton/machina/qemu/qhost/blockdev"
+	"github.com/gentlemanautomaton/machina/wwn"
 )
 
 // https://www.qemu.org/2021/01/19/virtio-blk-scsi-configuration/
@@ -122,6 +123,7 @@ type SCSIHD struct {
 	scsiID    int
 	lun       int
 	blockdev  blockdev.NodeName
+	wwn       wwn.Value
 	bootIndex BootIndex
 }
 
@@ -140,6 +142,9 @@ func (disk SCSIHD) Properties() Properties {
 		{Name: "scsi-id", Value: strconv.Itoa(disk.scsiID)},
 		{Name: "lun", Value: strconv.Itoa(disk.lun)},
 		{Name: "drive", Value: string(disk.blockdev)},
+	}
+	if !disk.wwn.IsZero() {
+		props.Add("wwn", disk.wwn.String())
 	}
 	if disk.bootIndex > 0 {
 		props.Add("bootindex", disk.bootIndex.String())

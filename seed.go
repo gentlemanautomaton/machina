@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"net"
 
+	"github.com/gentlemanautomaton/machina/wwn"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -13,19 +14,50 @@ type Seed struct {
 	info MachineInfo
 }
 
-// DeviceID constructs a device identifier from a hash of the seed and
+// WWN constructs a 64-bit [World Wide Name] from a hash of the seed and
 // components.
-func (s Seed) DeviceID(components ...[]byte) DeviceID {
-	return DeviceID(s.UUID(components...))
+//
+// The name returned will use Network Address Authority type 5 and IEEE OUI
+// value 52:54:00, which identifies it as a locally administered address
+// issued to a KVM virtual machine. This leaves 36 bits of unique value per
+// name.
+//
+// For more details about locally administered addresses, see
+// [RFC 5342 Section 2.1].
+//
+// [World Wide Name]: https://en.wikipedia.org/wiki/World_Wide_Name
+// [RFC 5342 Section 2.1]: https://datatracker.ietf.org/doc/html/rfc5342#section-2.1
+func (s Seed) WWN(components ...[]byte) wwn.Value {
+	// Build a hash from the seed and provided components
+	hash := s.shake128(components...)
+
+	// Copy the hashed bytes into a 64-bit WWN
+	var value wwn.Value
+	hash.Read(value[:8])
+
+	// Mark the WWN as NAA type 5 with OUI 52:54:00
+	value[0] = 0x55
+	value[1] = 0x25
+	value[2] = 0x40
+	value[3] = value[3] & 0x0f
+
+	return value
 }
 
-// HardwareAddr constructs an IEEE 802 MAC-48 hardware address from a hash
-// of the seed and components.
+// HardwareAddr constructs an IEEE 802 MAC-48/EUI-48 hardware address from a
+// hash of the seed and components.
 //
 // The address returned will have the well-known prefix of 52:54:00, which
-// identifies it as a locally administered address. This leaves 24 bits of
-// unique value per address, which may not be enough to avoid collisions on
-// a large network.
+// identifies it as a locally administered address issued to a KVM virtual
+// machine. This leaves 24 bits of unique value per address, which may not
+// be enough to avoid collisions on a large network.
+//
+// For more details about locally administered addresses, see
+// [RFC 5342 Section 2.1]. For an excellent treatment of MAC addresses in
+// general, see the [MAC Address FAQ] from AllDataFeeds.
+//
+// [RFC 5342 Section 2.1]: https://datatracker.ietf.org/doc/html/rfc5342#section-2.1
+// [MAC Address FAQ]: https://mac-address.alldatafeeds.com/faq
 func (s Seed) HardwareAddr(components ...[]byte) net.HardwareAddr {
 	// Build a hash from the seed and provided components
 	hash := s.shake128(components...)
@@ -40,6 +72,12 @@ func (s Seed) HardwareAddr(components ...[]byte) net.HardwareAddr {
 	address[2] = 0x00
 
 	return address[:]
+}
+
+// DeviceID constructs a device identifier from a hash of the seed and
+// components.
+func (s Seed) DeviceID(components ...[]byte) DeviceID {
+	return DeviceID(s.UUID(components...))
 }
 
 // UUID constructs a UUID from a hash of the seed and components.
