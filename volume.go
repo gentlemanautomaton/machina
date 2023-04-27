@@ -21,12 +21,16 @@ func (v VolumeName) Vars() Vars {
 // VolumePath is the path to a volume within a storage pool.
 type VolumePath string
 
+// VolumeSerialNumber is the serial number of a volume on a machine.
+type VolumeSerialNumber string
+
 // Volume describes a storage volume for a machine.
 type Volume struct {
-	Name     VolumeName  `json:"name"`
-	Storage  StorageName `json:"storage"`
-	WWN      wwn.Value   `json:"wwn"`
-	Bootable bool        `json:"bootable"`
+	Name         VolumeName         `json:"name"`
+	Storage      StorageName        `json:"storage"`
+	WWN          wwn.Value          `json:"wwn"`
+	SerialNumber VolumeSerialNumber `json:"serial"`
+	Bootable     bool               `json:"bootable"`
 }
 
 // Vars returns a set of volume variables. These can be used as variables
@@ -46,6 +50,9 @@ func (v Volume) String() string {
 	if !v.WWN.IsZero() {
 		notations = append(notations, "wwn: "+v.WWN.String())
 	}
+	if v.SerialNumber != "" {
+		notations = append(notations, "serial: "+string(v.SerialNumber))
+	}
 	if v.Bootable {
 		notations = append(notations, "bootable")
 	}
@@ -60,8 +67,16 @@ func (v Volume) String() string {
 //
 // The provided machine seed is used to generate the address.
 func (v Volume) Populate(seed Seed) Volume {
-	if v.WWN.IsZero() && v.Name != "" {
+	// Name is required in order for unique identities to be generated
+	if v.Name == "" {
+		return v
+	}
+
+	if v.WWN.IsZero() {
 		v.WWN = seed.WWN([]byte("volume"), []byte("wwn"), []byte(v.Name))
+	}
+	if v.SerialNumber == "" {
+		v.SerialNumber = VolumeSerialNumber(seed.SerialNumber([]byte("volume"), []byte("serial-number"), []byte(v.Name)))
 	}
 	return v
 }

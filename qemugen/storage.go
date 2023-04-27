@@ -114,6 +114,9 @@ func (h rawHandler) Apply(spec VolumeSpec, t Target) error {
 	if !spec.Volume.WWN.IsZero() {
 		options = append(options, qdev.WWN(spec.Volume.WWN))
 	}
+	if spec.Volume.SerialNumber != "" {
+		options = append(options, qdev.SerialNumber(spec.Volume.SerialNumber))
+	}
 	if spec.Volume.Bootable {
 		options = append(options, t.BootOrder.Next())
 	}

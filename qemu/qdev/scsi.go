@@ -117,14 +117,15 @@ type SCSIHDOption interface {
 
 // SCSIHD is a SCSI hard disk device.
 type SCSIHD struct {
-	id        ID
-	bus       ID
-	channel   int
-	scsiID    int
-	lun       int
-	blockdev  blockdev.NodeName
-	wwn       wwn.Value
-	bootIndex BootIndex
+	id           ID
+	bus          ID
+	channel      int
+	scsiID       int
+	lun          int
+	blockdev     blockdev.NodeName
+	wwn          wwn.Value
+	serialNumber string
+	bootIndex    BootIndex
 }
 
 // Driver returns the driver for the SCSI HD device, scsi-hd.
@@ -145,6 +146,9 @@ func (disk SCSIHD) Properties() Properties {
 	}
 	if !disk.wwn.IsZero() {
 		props.Add("wwn", disk.wwn.String())
+	}
+	if disk.serialNumber != "" {
+		props.Add("serial", disk.serialNumber)
 	}
 	if disk.bootIndex > 0 {
 		props.Add("bootindex", disk.bootIndex.String())

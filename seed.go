@@ -1,6 +1,7 @@
 package machina
 
 import (
+	"encoding/base32"
 	"encoding/binary"
 	"net"
 
@@ -42,6 +43,25 @@ func (s Seed) WWN(components ...[]byte) wwn.Value {
 	value[3] = value[3] & 0x0f
 
 	return value
+}
+
+// SerialNumber constructs a 128-bit serial number from a hash of the seed and
+// components. The value is returned as a string encoded with Base 32 Encoding
+// with Extended Hex Alphabet.
+//
+// See [RFC 4648 Section 7] for more details about the encoding.
+//
+// [RFC 4648 Section 7]: https://datatracker.ietf.org/doc/html/rfc4648#section-7
+func (s Seed) SerialNumber(components ...[]byte) string {
+	// Build a hash from the seed and provided components
+	hash := s.shake128(components...)
+
+	// Copy the hashed bytes into a buffer
+	var buffer [16]byte
+	hash.Read(buffer[:])
+
+	// Return the value in base32 with hex encoding and no padding
+	return base32.HexEncoding.WithPadding(base32.NoPadding).EncodeToString(buffer[:])
 }
 
 // HardwareAddr constructs an IEEE 802 MAC-48/EUI-48 hardware address from a
