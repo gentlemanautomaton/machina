@@ -62,10 +62,10 @@ func (v Volume) String() string {
 	return fmt.Sprintf("%s: %s", v.Name, v.Storage)
 }
 
-// Populate returns a copy of the volume with a world wide name, if one is
-// not already present.
+// Populate returns a copy of the volume with a world wide name and serial
+// number, if not already present.
 //
-// The provided machine seed is used to generate the address.
+// The provided machine seed is used to generate the identifiers.
 func (v Volume) Populate(seed Seed) Volume {
 	// Name is required in order for unique identities to be generated
 	if v.Name == "" {
