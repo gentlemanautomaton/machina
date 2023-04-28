@@ -92,7 +92,7 @@ The `machina` design is focused on supporting QEMU and KVM.
 
 ## Windows and linux guest support
 
-Virtual machines can easily be configured to enable Hyper-V Englightenments
+Virtual machines can easily be configured to enable Hyper-V Enlightenments
 used by Windows guests.
 
 ## OVMF firmware support
@@ -167,7 +167,7 @@ There is no support for live migration at this time.
 ## Virtual machine destruction
 
 There is no facility for total annihilation of virtual machines, which would
-include permantent deletion of their disk volumes.
+include permanent deletion of their disk volumes.
 
 This is an inherantly dangerous ability and won't be added without much
 consideration.
