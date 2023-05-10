@@ -35,11 +35,13 @@ func (m StorageHandlerMap) NodeName(spec VolumeSpec) (blockdev.NodeName, error) 
 // by the machina library.
 func DefaultStorageHandlers() StorageHandlerMap {
 	return StorageHandlerMap{
-		"raw":      rawHandler{},
-		"iso-ahci": ahciCDROM{},
-		"iso-scsi": scsiCDROM{},
-		"iso-usb":  usbCDROM{},
-		"firmware": firmwareHandler{},
+		"raw":       rawDiskHandler{Controller: "scsi"},
+		"raw-scsi":  rawDiskHandler{Controller: "scsi"},
+		"raw-block": rawDiskHandler{Controller: "block"},
+		"iso-ahci":  ahciCDROM{},
+		"iso-scsi":  scsiCDROM{},
+		"iso-usb":   usbCDROM{},
+		"firmware":  firmwareHandler{},
 	}
 }
 
@@ -63,13 +65,15 @@ func (spec VolumeSpec) VolumePath() machina.VolumePath {
 	return spec.Storage.Volume(spec.Machine, spec.Vars, spec.Volume.Name)
 }
 
-type rawHandler struct{}
+type rawDiskHandler struct {
+	Controller string
+}
 
-func (rawHandler) NodeName(spec VolumeSpec) blockdev.NodeName {
+func (rawDiskHandler) NodeName(spec VolumeSpec) blockdev.NodeName {
 	return blockdev.NodeName(fmt.Sprintf("%s-%s", spec.Machine.Name, spec.Volume.Name))
 }
 
-func (h rawHandler) Apply(spec VolumeSpec, t Target) error {
+func (h rawDiskHandler) Apply(spec VolumeSpec, t Target) error {
 	// Grab a reference to the node graph for block devices.
 	graph := t.VM.Resources.BlockDevs()
 
@@ -86,6 +90,12 @@ func (h rawHandler) Apply(spec VolumeSpec, t Target) error {
 		return err
 	}
 
+	// Prepare the raw volume's file protocol block device
+	format, err := blockdev.Raw{Name: name}.Connect(file)
+	if err != nil {
+		return err
+	}
+
 	// Use the most recently added I/O thread if one has already been added
 	var iothread qhost.IOThread
 	if iothreads := t.VM.Resources.IOThreads(); len(iothreads) > 0 {
@@ -97,33 +107,52 @@ func (h rawHandler) Apply(spec VolumeSpec, t Target) error {
 		}
 	}
 
-	// Add a Virtio SCSI Controller.
-	scsi, err := t.Controllers.SCSI(iothread)
-	if err != nil {
-		return err
-	}
+	switch h.Controller {
+	case "scsi":
+		// Add a Virtio SCSI Controller.
+		scsi, err := t.Controllers.SCSI(iothread)
+		if err != nil {
+			return err
+		}
 
-	// Prepare the raw volume's file protocol block device
-	format, err := blockdev.Raw{Name: name}.Connect(file)
-	if err != nil {
-		return err
-	}
+		// Prepare the SCSI HD device options.
+		var options []qdev.SCSIHDOption
+		if !spec.Volume.WWN.IsZero() {
+			options = append(options, qdev.WWN(spec.Volume.WWN))
+		}
+		if spec.Volume.SerialNumber != "" {
+			options = append(options, qdev.SerialNumber(spec.Volume.SerialNumber))
+		}
+		if spec.Volume.Bootable {
+			options = append(options, t.BootOrder.Next())
+		}
 
-	// Prepare the SCSI HD device options.
-	var options []qdev.SCSIHDOption
-	if !spec.Volume.WWN.IsZero() {
-		options = append(options, qdev.WWN(spec.Volume.WWN))
-	}
-	if spec.Volume.SerialNumber != "" {
-		options = append(options, qdev.SerialNumber(spec.Volume.SerialNumber))
-	}
-	if spec.Volume.Bootable {
-		options = append(options, t.BootOrder.Next())
-	}
+		// Add a SCSI HD device for this volume to the controller.
+		if _, err := scsi.AddDisk(format, options...); err != nil {
+			return err
+		}
+	case "block":
+		// Add a PCI Express Root device that we'll connect a Virtio Block
+		// device to.
+		root, err := t.VM.Topology.AddRoot()
+		if err != nil {
+			return err
+		}
 
-	// Add a SCSI HD device for this volume to the controller
-	if _, err := scsi.AddDisk(format, options...); err != nil {
-		return err
+		// Prepare the Virtio Block device options. Note that WWN values are
+		// not supported by Virtio Block devices.
+		var options []qdev.BlockOption
+		if spec.Volume.SerialNumber != "" {
+			options = append(options, qdev.SerialNumber(spec.Volume.SerialNumber))
+		}
+		if spec.Volume.Bootable {
+			options = append(options, t.BootOrder.Next())
+		}
+
+		// Add a Virtio Block device.
+		root.AddVirtioBlock(iothread, format, options...)
+	default:
+		return fmt.Errorf("unrecognized raw disk controller type: \"%s\"", h.Controller)
 	}
 
 	return nil

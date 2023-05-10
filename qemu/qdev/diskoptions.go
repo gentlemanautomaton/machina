@@ -29,6 +29,10 @@ func (boot BootIndex) applySCSIHD(disk *SCSIHD) {
 	disk.bootIndex = boot
 }
 
+func (boot BootIndex) applyBlock(block *Block) {
+	block.bootIndex = boot
+}
+
 // WWN defines a World Wide Name for a QEMU disk device.
 type WWN [16]byte
 
@@ -41,4 +45,8 @@ type SerialNumber string
 
 func (value SerialNumber) applySCSIHD(disk *SCSIHD) {
 	disk.serialNumber = string(value)
+}
+
+func (value SerialNumber) applyBlock(block *Block) {
+	block.serialNumber = string(value)
 }

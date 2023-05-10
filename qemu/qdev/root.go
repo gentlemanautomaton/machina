@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gentlemanautomaton/machina/qemu/qhost"
+	"github.com/gentlemanautomaton/machina/qemu/qhost/blockdev"
 )
 
 var (
@@ -117,6 +118,26 @@ func (r *Root) AddVirtioSCSI(thread qhost.IOThread) (*SCSI, error) {
 	}
 	r.downstream = controller
 	return controller, nil
+}
+
+// AddVirtioBlock connects a PCI Express Virtio Block device to the
+// PCI Express Root Port.
+func (r *Root) AddVirtioBlock(thread qhost.IOThread, bdev blockdev.Node, options ...BlockOption) (Block, error) {
+	if r.downstream != nil {
+		return Block{}, ErrDownstreamOccupied
+	}
+	const prefix = "block"
+	block := Block{
+		id:       r.buses.Allocate(prefix),
+		bus:      r.id,
+		iothread: thread.ID(),
+		blockdev: bdev.Name(),
+	}
+	for _, opt := range options {
+		opt.applyBlock(&block)
+	}
+	r.downstream = block
+	return block, nil
 }
 
 // AddVirtioNetwork connects a PCI Express Virtio Network controller to the
