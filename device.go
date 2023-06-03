@@ -2,6 +2,8 @@ package machina
 
 import (
 	"fmt"
+
+	"github.com/gentlemanautomaton/machina/summary"
 )
 
 // DeviceAddress is a device address on the host system.
@@ -84,6 +86,6 @@ func (d Device) Populate(seed Seed) Device {
 }
 
 // Config adds the device configuration to the summary.
-func (d Device) Config(out Summary) {
+func (d Device) Config(out summary.Interface) {
 	out.Add("%s", d)
 }

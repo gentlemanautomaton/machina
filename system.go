@@ -1,5 +1,7 @@
 package machina
 
+import "github.com/gentlemanautomaton/machina/summary"
+
 // System holds configuration for the virtual machine host system.
 type System struct {
 	// Storage defines storage pools available on the host system.
@@ -18,7 +20,7 @@ type System struct {
 
 // Summary returns a multiline string summarizing the system configuration.
 func (sys System) Summary() string {
-	var out summarizer
+	var out summary.Builder
 	out.Descend()
 
 	if len(sys.Storage) > 0 {

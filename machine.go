@@ -1,5 +1,7 @@
 package machina
 
+import "github.com/gentlemanautomaton/machina/summary"
+
 // Machine describes an individual virtual machine in machina. It contains
 // identity information, tags, and a definition.
 //
@@ -27,7 +29,7 @@ func (m Machine) Info() MachineInfo {
 
 // Summary returns a multiline string summarizing the machine configuration.
 func (m Machine) Summary() string {
-	var out summarizer
+	var out summary.Builder
 	out.Descend()
 
 	if m.Name != "" {

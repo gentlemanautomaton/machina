@@ -1,5 +1,7 @@
 package machina
 
+import "github.com/gentlemanautomaton/machina/summary"
+
 // Definition holds the definition of a machine tag.
 type Definition struct {
 	Vars        Vars         `json:"vars,omitempty"`
@@ -10,7 +12,7 @@ type Definition struct {
 }
 
 // Config adds the attributes configuration to the summary.
-func (d *Definition) Config(info MachineInfo, out Summary) {
+func (d *Definition) Config(info MachineInfo, out summary.Interface) {
 	if len(d.Vars) > 0 {
 		out.Add("Vars:")
 		out.Descend()

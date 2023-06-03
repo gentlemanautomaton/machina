@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/gentlemanautomaton/machina/summary"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -36,7 +37,7 @@ func (c Connection) Populate(seed Seed) Connection {
 }
 
 // Config adds the connection configuration to the summary.
-func (c *Connection) Config(out Summary) {
+func (c *Connection) Config(out summary.Interface) {
 	out.Add("%s", c)
 }
 

@@ -3,6 +3,8 @@ package machina
 import (
 	"sort"
 	"strings"
+
+	"github.com/gentlemanautomaton/machina/summary"
 )
 
 // https://wiki.archlinux.org/title/Intel_GVT-g
@@ -49,7 +51,7 @@ func (m MediatedDeviceMap) WithClass(class DeviceClass) (devices MediatedDeviceL
 }
 
 // Config adds the mediated device configuration to the summary.
-func (dev MediatedDevice) Config(out Summary) {
+func (dev MediatedDevice) Config(out summary.Interface) {
 	for class, typ := range dev.Types {
 		out.Add("%s: %s", class, typ)
 	}

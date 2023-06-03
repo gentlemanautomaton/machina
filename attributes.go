@@ -2,6 +2,7 @@ package machina
 
 import (
 	"github.com/gentlemanautomaton/machina/qemu/qguest"
+	"github.com/gentlemanautomaton/machina/summary"
 )
 
 // Attributes describe various attributes of a machine.
@@ -16,7 +17,7 @@ type Attributes struct {
 }
 
 // Config adds the attributes configuration to the summary.
-func (a *Attributes) Config(info MachineInfo, vars Vars, out Summary) {
+func (a *Attributes) Config(info MachineInfo, vars Vars, out summary.Interface) {
 	a.Firmware.Config(out)
 	a.CPU.Config(out)
 	a.Memory.Config(out)
@@ -49,7 +50,7 @@ type Firmware struct {
 }
 
 // Config adds the firmware configuration to the summary.
-func (f *Firmware) Config(out Summary) {
+func (f *Firmware) Config(out summary.Interface) {
 	if !f.Code.IsEmpty() {
 		out.Add("Firmware Code (read-only): %s", f.Code)
 	}
@@ -74,7 +75,7 @@ type CPU struct {
 }
 
 // Config adds the cpu configuration to the summary.
-func (cpu *CPU) Config(out Summary) {
+func (cpu *CPU) Config(out summary.Interface) {
 	if cpu.Sockets > 0 {
 		out.Add("Sockets: %d", cpu.Sockets)
 	}
@@ -98,7 +99,7 @@ type Memory struct {
 }
 
 // Config adds the memory configuration to the summary.
-func (m *Memory) Config(out Summary) {
+func (m *Memory) Config(out summary.Interface) {
 	if m.RAM > 0 {
 		out.Add("RAM: %s", qguest.MB(m.RAM).Size())
 	}
@@ -118,7 +119,7 @@ type Enlightenments struct {
 }
 
 // Config adds the enlightenments configuration to the summary.
-func (e *Enlightenments) Config(out Summary) {
+func (e *Enlightenments) Config(out summary.Interface) {
 	if e.Enabled {
 		out.Add("Hyper-V Enlightenments: Enabled")
 	}
@@ -150,7 +151,7 @@ type QMPSockets struct {
 }
 
 // Config adds the QEMU Machine Protocol configuration to the summary.
-func (q *QMP) Config(info MachineInfo, out Summary) {
+func (q *QMP) Config(info MachineInfo, out summary.Interface) {
 	if !q.Enabled {
 		return
 	}
@@ -209,7 +210,7 @@ type Agent struct {
 }
 
 // Config adds the agent configuration to the summary.
-func (a *Agent) Config(vars Vars, out Summary) {
+func (a *Agent) Config(vars Vars, out summary.Interface) {
 	a.QEMU.Config(vars, out)
 }
 
@@ -242,7 +243,7 @@ func (qga QEMUAgent) EffectivePort(vars Vars) (int, error) {
 }
 
 // Config adds the QEMU guest configuration to the summary.
-func (qga *QEMUAgent) Config(vars Vars, out Summary) {
+func (qga *QEMUAgent) Config(vars Vars, out summary.Interface) {
 	if !qga.Enabled {
 		return
 	}
@@ -272,7 +273,7 @@ func (s Spice) EffectivePort(vars Vars) (int, error) {
 }
 
 // Config adds the spice configuration to the summary.
-func (s *Spice) Config(vars Vars, out Summary) {
+func (s *Spice) Config(vars Vars, out summary.Interface) {
 	if !s.Enabled {
 		return
 	}

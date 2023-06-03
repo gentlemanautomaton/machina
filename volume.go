@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gentlemanautomaton/machina/summary"
 	"github.com/gentlemanautomaton/machina/wwn"
 )
 
@@ -82,7 +83,7 @@ func (v Volume) Populate(seed Seed) Volume {
 }
 
 // Config adds the volume configuration to the summary.
-func (v *Volume) Config(out Summary) {
+func (v *Volume) Config(out summary.Interface) {
 	out.Add("%s", v)
 }
 
