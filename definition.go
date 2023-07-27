@@ -5,6 +5,7 @@ import "github.com/gentlemanautomaton/machina/summary"
 // Definition holds the definition of a machine tag.
 type Definition struct {
 	Vars        Vars         `json:"vars,omitempty"`
+	Privileges  Privileges   `json:"privileges,omitempty"`
 	Attributes  Attributes   `json:"attrs,omitempty"`
 	Volumes     []Volume     `json:"volumes,omitempty"`
 	Connections []Connection `json:"connections,omitempty"`
@@ -21,6 +22,8 @@ func (d *Definition) Config(info MachineInfo, out summary.Interface) {
 		}
 		out.Ascend()
 	}
+
+	d.Privileges.Config(info, d.Vars, out)
 
 	d.Attributes.Config(info, d.Vars, out)
 
@@ -57,6 +60,7 @@ func (d *Definition) Config(info MachineInfo, out summary.Interface) {
 func MergeDefinitions(defs ...Definition) Definition {
 	var (
 		vars  []Vars
+		privs []Privileges
 		attrs []Attributes
 		vols  []Volume
 		conns []Connection
@@ -65,6 +69,7 @@ func MergeDefinitions(defs ...Definition) Definition {
 
 	for i := range defs {
 		vars = append(vars, defs[i].Vars)
+		privs = append(privs, defs[i].Privileges)
 		attrs = append(attrs, defs[i].Attributes)
 		vols = append(vols, defs[i].Volumes...)
 		conns = append(conns, defs[i].Connections...)
@@ -73,6 +78,7 @@ func MergeDefinitions(defs ...Definition) Definition {
 
 	return Definition{
 		Vars:        MergeVars(vars...),
+		Privileges:  MergePrivileges(privs...),
 		Attributes:  MergeAttributes(attrs...),
 		Volumes:     MergeVolumes(vols...),
 		Connections: MergeConnections(conns...),

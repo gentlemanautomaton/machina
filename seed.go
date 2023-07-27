@@ -15,6 +15,34 @@ type Seed struct {
 	info MachineInfo
 }
 
+// GroupID constructs a POSIX group identifier from a hash of the seed and
+// components.
+//
+// The returned group ID will be between 65536 and 4294967295, placing it
+// outside of the range of most standard tooling.
+func (s Seed) GroupID(components ...[]byte) GroupID {
+	// Define an acceptable group ID range
+	const minGroupID = 65536
+	const maxRounds = 4096
+
+	// Build a hash from the seed and provided components
+	hash := s.shake128(components...)
+
+	// Squeeze data from the hash and interpret it as an integer. Repeat
+	// until we find a valid group ID in the range we're looking for.
+	var buffer [4]byte
+	for round := 0; round < maxRounds; round++ {
+		hash.Read(buffer[:])
+		gid := GroupID(binary.BigEndian.Uint32(buffer[:]))
+		if gid >= minGroupID {
+			return gid
+		}
+	}
+
+	// Panic if something has gone terribly wrong with our sha3 hash function
+	panic("failed to generate a group ID in the desired range")
+}
+
 // WWN constructs a 64-bit [World Wide Name] from a hash of the seed and
 // components.
 //

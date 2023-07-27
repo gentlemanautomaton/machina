@@ -16,10 +16,11 @@ func Build(m Machine, sys System) (merged Definition, err error) {
 	defs = append([]Definition{m.Definition}, defs...)
 	merged = MergeDefinitions(defs...)
 
-	// Generate world wide names, device IDs and hardware addresses as
-	// necessary. Use the machine's identifiers as a seed state for
+	// Generate group IDs, world wide names, device IDs and hardware addresses
+	// as necessary. Use the machine's identifiers as a seed state for
 	// deterministic generation of values.
 	seed := m.Info().Seed()
+	merged.Privileges = merged.Privileges.Populate(seed)
 	for i, volume := range merged.Volumes {
 		merged.Volumes[i] = volume.Populate(seed)
 	}
