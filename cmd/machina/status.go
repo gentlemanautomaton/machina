@@ -6,7 +6,7 @@ import (
 
 // StatusCmd prints the systemd unit status for one or more virtual machines.
 type StatusCmd struct {
-	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to enable.'"`
+	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to report the status of.'"`
 }
 
 // Run executes the machine status command.
