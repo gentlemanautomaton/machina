@@ -50,6 +50,11 @@ func applyDefaults(vm *qvm.Definition) error {
 	vm.Settings.Clock.Isolation = qguest.ClockIsolationHost
 	vm.Settings.Clock.DriftFix = qguest.ClockDriftFixSlew
 
+	// Paravirtualized panic support
+	if _, err := vm.Topology.AddPanic(); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -77,6 +77,24 @@ func (t *Topology) AddQXL() (*QXL, error) {
 	return qxl, nil
 }
 
+// AddPanic connects a paravirtualized panic device to the PCI Express Root
+// Complex as an integrated PCI device.
+func (t *Topology) AddPanic() (PVPanic, error) {
+	index, err := t.allocate()
+	if err != nil {
+		return PVPanic{}, err
+	}
+
+	const startingSlot = 1
+	addr := Addr{Slot: index/MaxMultifunctionDevices + startingSlot, Function: index % MaxMultifunctionDevices}
+	p := PVPanic{
+		id:   t.buses.Allocate("panic"),
+		addr: addr,
+	}
+	t.devices = append(t.devices, p)
+	return p, nil
+}
+
 // AddCDROM connects a SATA CD-ROM device to the AHCI bus built into the
 // q35 machine's ICH9 controller.
 func (t *Topology) AddCDROM(bdev blockdev.Node) (SATACD, error) {
