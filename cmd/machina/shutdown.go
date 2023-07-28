@@ -71,11 +71,6 @@ func (cmd ShutdownCmd) Run(ctx context.Context) error {
 				return
 			}
 
-			// Send a second shutdown command immediately after the first.
-			// This may be needed to convince some Windows guests to shut
-			// down immediately.
-			client.Execute(ctx, qmpcmd.SystemPowerdown)
-
 			// Report success.
 			fmt.Printf("%s: Issued shutdown command.\n", name)
 
@@ -94,12 +89,58 @@ func (cmd ShutdownCmd) Run(ctx context.Context) error {
 				defer cancel()
 			}
 
+			// Send repeated shutdown requests every five seconds.
+			// This may be needed to convince some guests to shut down.
+			const powerdownInterval = time.Second * 5
+			var stopIssuingPowerdowns func()
+			{
+				// Prepare a context that we'll use to stop a ticker later on.
+				tickerCtx, cancel := context.WithCancel(ctx)
+
+				// Prepare a channel that will close when our ticker stops.
+				done := make(chan struct{})
+
+				// The stopIssuingPowerdowns function can be used to stop the
+				// ticker. It's safe to call it more than once.
+				stopIssuingPowerdowns = func() {
+					cancel()
+					<-done
+				}
+
+				// Always stop the ticker when we're done handling this VM.
+				defer stopIssuingPowerdowns()
+
+				// Start a goroutine that will send commands every 5 seconds
+				// until tickerCtx is cancelled.
+				go func() {
+					ticker := time.NewTicker(powerdownInterval)
+					defer close(done)
+					defer ticker.Stop()
+
+					for {
+						select {
+						case <-ticker.C:
+							client.Execute(ctx, qmpcmd.SystemPowerdown)
+						case <-tickerCtx.Done():
+							return
+						}
+					}
+				}()
+			}
+
 			// Process events while we wait for something to happen.
 			for {
 				event, err := listener.Receive(listenerCtx)
 
 				switch err {
 				case io.EOF:
+					// The QMP socket closed, which indicates that shutdown
+					// is complete.
+
+					// Stop sending system powerdown commands.
+					stopIssuingPowerdowns()
+
+					// Report completion.
 					fmt.Printf("%s: QMP socket closed. Shutdown complete.\n", name)
 					return
 				case context.DeadlineExceeded, context.Canceled:
@@ -109,7 +150,10 @@ func (cmd ShutdownCmd) Run(ctx context.Context) error {
 						return
 					}
 
-					// Our timeout expired. Send a QUIT command.
+					// Our timeout expired. Stop sending system powerdown
+					// commands and send a quit command isntead.
+					stopIssuingPowerdowns()
+
 					fmt.Printf("%s: Timeout expired. Sending QUIT message.\n", name)
 					if err := client.Execute(ctx, qmpcmd.Quit); err != nil {
 						fmt.Printf("%s: Failed to send QUIT: %v\n", name, err)
