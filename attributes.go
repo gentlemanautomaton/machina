@@ -72,6 +72,7 @@ func overlayFirmware(merged, overlay *Firmware) {
 type CPU struct {
 	Sockets int `json:"sockets,omitempty"`
 	Cores   int `json:"cores,omitempty"`
+	Threads int `json:"threads,omitempty"`
 }
 
 // Config adds the cpu configuration to the summary.
@@ -82,6 +83,9 @@ func (cpu *CPU) Config(out summary.Interface) {
 	if cpu.Cores > 0 {
 		out.Add("Cores: %d", cpu.Cores)
 	}
+	if cpu.Threads > 0 {
+		out.Add("Threads: %d", cpu.Threads)
+	}
 }
 
 func overlayCPU(merged, overlay *CPU) {
@@ -90,6 +94,9 @@ func overlayCPU(merged, overlay *CPU) {
 	}
 	if overlay.Cores > 0 {
 		merged.Cores = overlay.Cores
+	}
+	if overlay.Threads > 0 {
+		merged.Threads = overlay.Threads
 	}
 }
 
