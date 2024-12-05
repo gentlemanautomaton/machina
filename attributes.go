@@ -70,33 +70,40 @@ func overlayFirmware(merged, overlay *Firmware) {
 
 // CPU describes the attributes of a machine's central processing units.
 type CPU struct {
-	Sockets int `json:"sockets,omitempty"`
-	Cores   int `json:"cores,omitempty"`
-	Threads int `json:"threads,omitempty"`
+	Processor      ProcessorName `json:"processor,omitempty"`
+	Sockets        int           `json:"sockets,omitempty"`
+	Cores          int           `json:"cores,omitempty"`
+	ThreadsPerCore int           `json:"threads,omitempty"`
 }
 
 // Config adds the cpu configuration to the summary.
 func (cpu *CPU) Config(out summary.Interface) {
+	if cpu.Processor != "" {
+		out.Add("Processor: %s", cpu.Processor)
+	}
 	if cpu.Sockets > 0 {
 		out.Add("Sockets: %d", cpu.Sockets)
 	}
 	if cpu.Cores > 0 {
 		out.Add("Cores: %d", cpu.Cores)
 	}
-	if cpu.Threads > 0 {
-		out.Add("Threads: %d", cpu.Threads)
+	if cpu.ThreadsPerCore > 0 {
+		out.Add("Threads Per Core: %d", cpu.ThreadsPerCore)
 	}
 }
 
 func overlayCPU(merged, overlay *CPU) {
+	if overlay.Processor != "" {
+		merged.Processor = overlay.Processor
+	}
 	if overlay.Sockets > 0 {
 		merged.Sockets = overlay.Sockets
 	}
 	if overlay.Cores > 0 {
 		merged.Cores = overlay.Cores
 	}
-	if overlay.Threads > 0 {
-		merged.Threads = overlay.Threads
+	if overlay.ThreadsPerCore > 0 {
+		merged.ThreadsPerCore = overlay.ThreadsPerCore
 	}
 }
 

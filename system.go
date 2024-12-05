@@ -4,6 +4,9 @@ import "github.com/gentlemanautomaton/machina/summary"
 
 // System holds configuration for the virtual machine host system.
 type System struct {
+	// Processor defines processors available on the host system.
+	Processor ProcessorMap `json:"processor,omitempty"`
+
 	// Storage defines storage pools available on the host system.
 	Storage StorageMap `json:"storage,omitempty"`
 
