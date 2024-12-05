@@ -20,10 +20,23 @@ func (p Processor) CPU() qemu.Parameters {
 	params := qemu.Parameters{{Name: "host"}}
 	if p.HyperV {
 		params = append(params, qemu.Parameters{
-			{Name: "hv_relaxed"},
-			{Name: "hv_spinlocks", Value: "0x1fff"},
-			{Name: "hv_vapic"},
-			{Name: "hv_time"},
+			{Name: "hv-relaxed"},
+			{Name: "hv-vapic"},
+			{Name: "hv-spinlocks", Value: "0x1fff"},
+			{Name: "hv-vpindex"},
+			{Name: "hv-runtime"},
+			{Name: "hv-time"},
+			{Name: "hv-synic"},
+			{Name: "hv-stimer"},
+			{Name: "hv-tlbflush"},
+			{Name: "hv-ipi"},
+			{Name: "hv-frequencies"},
+			{Name: "hv-reenlightenment"},
+			{Name: "hv-stimer-direct"},
+			{Name: "hv-emsr-bitmap"},
+			{Name: "hv-xmm-input"},
+			{Name: "hv-tlbflush-ext"},
+			{Name: "hv-tlbflush-direct"},
 		}...)
 	}
 	return params
