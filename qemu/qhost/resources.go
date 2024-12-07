@@ -6,6 +6,7 @@ import (
 	"github.com/gentlemanautomaton/machina/qemu"
 	"github.com/gentlemanautomaton/machina/qemu/qhost/blockdev"
 	"github.com/gentlemanautomaton/machina/qemu/qhost/chardev"
+	"github.com/gentlemanautomaton/machina/qemu/qhost/tpmdev"
 )
 
 // Resources describe the host resources that are available to a
@@ -14,6 +15,7 @@ type Resources struct {
 	iothreads []IOThread
 	blockdevs blockdev.Graph
 	chardevs  chardev.Map
+	tpmdevs   tpmdev.Map
 	netdevs   []NetDev
 }
 
@@ -42,6 +44,11 @@ func (r *Resources) BlockDevs() blockdev.NodeGraph {
 // CharDevs returns the character device registry for the host.
 func (r *Resources) CharDevs() chardev.Registry {
 	return &r.chardevs
+}
+
+// TPMDevs returns the TPM device registry for the host.
+func (r *Resources) TPMDevs() tpmdev.Registry {
+	return &r.tpmdevs
 }
 
 // NetDevs returns the set of network resources that have been defined.
@@ -86,6 +93,9 @@ func (r *Resources) Options() qemu.Options {
 
 	// CharDevs
 	opts = append(opts, r.chardevs.Options()...)
+
+	// TPMDevs
+	opts = append(opts, r.tpmdevs.Options()...)
 
 	// NetDevs
 	for _, netdev := range r.netdevs {
