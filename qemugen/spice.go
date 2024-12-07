@@ -55,7 +55,7 @@ func applySpice(spice machina.Spice, vars machina.Vars, t Target) error {
 		vdagent, err := chardev.SpiceChannel{
 			ID:      chardev.ID("vdagent"),
 			Channel: chardev.SpiceChannelName("vdagent"),
-		}.Add(registry)
+		}.AddTo(registry)
 		if err != nil {
 			return err
 		}
@@ -93,7 +93,7 @@ func applySpice(spice machina.Spice, vars machina.Vars, t Target) error {
 			channel, err := chardev.SpiceChannel{
 				ID:      chardev.ID(name),
 				Channel: chardev.SpiceChannelName("usbredir"),
-			}.Add(registry)
+			}.AddTo(registry)
 			if err != nil {
 				return err
 			}

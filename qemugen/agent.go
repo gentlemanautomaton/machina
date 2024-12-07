@@ -35,7 +35,7 @@ func applyQEMUAgent(qga machina.QEMUAgent, vars machina.Vars, t Target) error {
 		Server:  true,
 		NoWait:  true,
 		NoDelay: true,
-	}.Add(registry)
+	}.AddTo(registry)
 	if err != nil {
 		return err
 	}

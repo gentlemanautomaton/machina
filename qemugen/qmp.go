@@ -37,7 +37,7 @@ func applyQMP(machine machina.MachineInfo, proto machina.QMP, t Target) error {
 			Path:   chardev.SocketPath(socketPath),
 			Server: true,
 			NoWait: true,
-		}.Add(registry)
+		}.AddTo(registry)
 		if err != nil {
 			return err
 		}

@@ -16,14 +16,14 @@ type Passthrough struct {
 	CancelPath sysfs.Path
 }
 
-// Add creates a new passthrough TPM device with the given options and adds
+// AddTo creates a new passthrough TPM device with the given options and adds
 // it to the TPM device registry.
 //
 // The returned TPM device is immutable and can safely be copied by value.
 //
 // An error is returned if the device cannot be added to the device registry
 // or the TPM configuration is invalid.
-func (p Passthrough) Add(m Registry) (PassthroughDevice, error) {
+func (p Passthrough) AddTo(m Registry) (PassthroughDevice, error) {
 	if err := p.validate(); err != nil {
 		return PassthroughDevice{}, err
 	}

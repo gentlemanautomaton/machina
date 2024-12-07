@@ -21,7 +21,7 @@ func applyTPM(machine machina.MachineInfo, proto machina.TPM, t Target) error {
 	socket, err := chardev.UnixSocket{
 		ID:   chardev.ID("tpm.0.socket"),
 		Path: chardev.SocketPath(proto.SocketPath(machine)),
-	}.Add(charDevs)
+	}.AddTo(charDevs)
 	if err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func applyTPM(machine machina.MachineInfo, proto machina.TPM, t Target) error {
 	tpm, err := tpmdev.Emulated{
 		ID:     tpmdev.ID("tpm.0"),
 		Device: socket.ID(),
-	}.Add(tpmDevs)
+	}.AddTo(tpmDevs)
 	if err != nil {
 		return err
 	}

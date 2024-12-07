@@ -32,7 +32,7 @@ type TCPSocket struct {
 	LogAppend bool
 }
 
-// Add creates a new TCP socket character device with the given options and
+// AddTo creates a new TCP socket character device with the given options and
 // attaches it to the device registry.
 //
 // The returned character device is immutable and can safely be copied by
@@ -40,7 +40,7 @@ type TCPSocket struct {
 //
 // An error is returned if the device cannot be attached to the device map
 // or the socket configuration is invalid.
-func (s TCPSocket) Add(m Registry) (TCPSocketDevice, error) {
+func (s TCPSocket) AddTo(m Registry) (TCPSocketDevice, error) {
 	if err := s.validate(); err != nil {
 		return TCPSocketDevice{}, err
 	}

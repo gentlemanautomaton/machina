@@ -21,7 +21,7 @@ type SpiceChannel struct {
 	LogAppend bool
 }
 
-// Add creates a new spice protocol virtual machine channel with the given
+// AddTo creates a new spice protocol virtual machine channel with the given
 // options and adds it to the character device map.
 //
 // The returned character device is immutable and can safely be copied by
@@ -29,7 +29,7 @@ type SpiceChannel struct {
 //
 // An error is returned if the configuration is invalid, or if the character
 // device cannot be attached to the device map.
-func (s SpiceChannel) Add(m Registry) (SpiceChannelDevice, error) {
+func (s SpiceChannel) AddTo(m Registry) (SpiceChannelDevice, error) {
 	if err := s.validate(); err != nil {
 		return SpiceChannelDevice{}, err
 	}

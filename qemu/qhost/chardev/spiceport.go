@@ -20,7 +20,7 @@ type SpicePort struct {
 	LogAppend bool
 }
 
-// Add creates a new spice protocol port with the given options and adds it
+// AddTo creates a new spice protocol port with the given options and adds it
 // to the character device map.
 //
 // The returned character device is immutable and can safely be copied by
@@ -28,7 +28,7 @@ type SpicePort struct {
 //
 // An error is returned if the configuration is invalid, or if the character
 // device cannot be attached to the device map.
-func (s SpicePort) Add(m Registry) (SpicePortDevice, error) {
+func (s SpicePort) AddTo(m Registry) (SpicePortDevice, error) {
 	if err := s.validate(); err != nil {
 		return SpicePortDevice{}, err
 	}

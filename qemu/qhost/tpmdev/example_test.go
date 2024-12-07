@@ -16,7 +16,7 @@ func Example() {
 	_, err := tpmdev.Passthrough{
 		ID:   tpmdev.ID("tpm.0"),
 		Path: devfs.Path("/dev/tpm2"),
-	}.Add(&registry)
+	}.AddTo(&registry)
 	if err != nil {
 		panic(err)
 	}
@@ -25,7 +25,7 @@ func Example() {
 	_, err = tpmdev.Emulated{
 		ID:     tpmdev.ID("tpm.1"),
 		Device: chardev.ID("tpm.1.socket"),
-	}.Add(&registry)
+	}.AddTo(&registry)
 	if err != nil {
 		panic(err)
 	}

@@ -14,7 +14,7 @@ func Example() {
 	_, err := chardev.UnixSocket{
 		ID:   chardev.ID("unix-socket"),
 		Path: chardev.SocketPath("~/guest-os.0.socket"),
-	}.Add(&registry)
+	}.AddTo(&registry)
 	if err != nil {
 		panic(err)
 	}
@@ -27,7 +27,7 @@ func Example() {
 		Server:  true,
 		NoWait:  true,
 		NoDelay: true,
-	}.Add(&registry)
+	}.AddTo(&registry)
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +36,7 @@ func Example() {
 	_, err = chardev.SpiceChannel{
 		ID:      chardev.ID("vdagent"),
 		Channel: chardev.SpiceChannelName("vdagent"),
-	}.Add(&registry)
+	}.AddTo(&registry)
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +45,7 @@ func Example() {
 	_, err = chardev.SpiceChannel{
 		ID:      chardev.ID("usbredir.0"),
 		Channel: chardev.SpiceChannelName("usbredir"),
-	}.Add(&registry)
+	}.AddTo(&registry)
 	if err != nil {
 		panic(err)
 	}
@@ -53,7 +53,7 @@ func Example() {
 	_, err = chardev.SpiceChannel{
 		ID:      chardev.ID("usbredir.1"),
 		Channel: chardev.SpiceChannelName("usbredir"),
-	}.Add(&registry)
+	}.AddTo(&registry)
 	if err != nil {
 		panic(err)
 	}

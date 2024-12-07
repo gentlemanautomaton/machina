@@ -25,7 +25,7 @@ type UnixSocket struct {
 	LogAppend bool
 }
 
-// Add creates a new unix socket character device with the given options and
+// AddTo creates a new unix socket character device with the given options and
 // attaches it to the device registry.
 //
 // The returned character device is immutable and can safely be copied by
@@ -33,7 +33,7 @@ type UnixSocket struct {
 //
 // An error is returned if the device cannot be attached to the device map
 // or the socket configuration is invalid.
-func (s UnixSocket) Add(m Registry) (UnixSocketDevice, error) {
+func (s UnixSocket) AddTo(m Registry) (UnixSocketDevice, error) {
 	if err := s.validate(); err != nil {
 		return UnixSocketDevice{}, err
 	}
