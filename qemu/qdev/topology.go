@@ -6,6 +6,7 @@ import (
 
 	"github.com/gentlemanautomaton/machina/qemu"
 	"github.com/gentlemanautomaton/machina/qemu/qhost/blockdev"
+	"github.com/gentlemanautomaton/machina/qemu/qhost/tpmdev"
 )
 
 // https://github.com/qemu/qemu/blob/master/docs/qdev-device-use.txt
@@ -93,6 +94,15 @@ func (t *Topology) AddPanic() (PVPanic, error) {
 	}
 	t.devices = append(t.devices, p)
 	return p, nil
+}
+
+// AddTPM connects a Trusted Platform Module device to the machine via memory mapping.
+func (t *Topology) AddTPM(device tpmdev.ID) (TPM, error) {
+	tpm := TPM{
+		device: device,
+	}
+	t.devices = append(t.devices, tpm)
+	return tpm, nil
 }
 
 // AddCDROM connects a SATA CD-ROM device to the AHCI bus built into the
