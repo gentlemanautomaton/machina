@@ -59,27 +59,32 @@ func applyDefaults(vm *qvm.Definition) error {
 }
 
 func applyAttributes(machine machina.MachineInfo, vars machina.Vars, attrs machina.Attributes, processors machina.ProcessorMap, target Target) error {
-	// Apply CPU attributes
+	// Apply CPU attributes.
 	if err := applyCPU(attrs, processors, target); err != nil {
 		return err
 	}
 
-	// Apply memory attributes
+	// Apply memory attributes.
 	if ram := attrs.Memory.RAM; ram > 0 {
 		target.VM.Settings.Memory.Allocation = qguest.MB(ram)
 	}
 
-	// Apply QEMU Machine Protocol attributes
+	// Apply Trusted Platform Module attributes.
+	if err := applyTPM(machine, attrs.TPM, target); err != nil {
+		return err
+	}
+
+	// Apply QEMU Machine Protocol attributes.
 	if err := applyQMP(machine, attrs.QMP, target); err != nil {
 		return err
 	}
 
-	// Apply guest agent attributes
+	// Apply guest agent attributes.
 	if err := applyQEMUAgent(attrs.Agent.QEMU, vars, target); err != nil {
 		return err
 	}
 
-	// Apply spice protocol attributes
+	// Apply spice protocol attributes.
 	if err := applySpice(attrs.Spice, vars, target); err != nil {
 		return err
 	}

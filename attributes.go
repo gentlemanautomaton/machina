@@ -11,6 +11,7 @@ type Attributes struct {
 	CPU            CPU            `json:"cpu,omitempty"`
 	Memory         Memory         `json:"memory,omitempty"`
 	Enlightenments Enlightenments `json:"enlightenments,omitempty"`
+	TPM            TPM            `json:"tpm,omitempty"`
 	QMP            QMP            `json:"qmp,omitempty"`
 	Agent          Agent          `json:"agent,omitempty"`
 	Spice          Spice          `json:"spice,omitempty"`
@@ -22,6 +23,7 @@ func (a *Attributes) Config(info MachineInfo, vars Vars, out summary.Interface) 
 	a.CPU.Config(out)
 	a.Memory.Config(out)
 	a.Enlightenments.Config(out)
+	a.TPM.Config(info, out)
 	a.QMP.Config(info, out)
 	a.Agent.Config(vars, out)
 	a.Spice.Config(vars, out)
@@ -36,6 +38,7 @@ func MergeAttributes(attrs ...Attributes) Attributes {
 		overlayCPU(&merged.CPU, &attrs[i].CPU)
 		overlayMemory(&merged.Memory, &attrs[i].Memory)
 		overlayEnlightenments(&merged.Enlightenments, &attrs[i].Enlightenments)
+		overlayTPM(&merged.TPM, &attrs[i].TPM)
 		overlayQMP(&merged.QMP, &attrs[i].QMP)
 		overlayAgent(&merged.Agent, &attrs[i].Agent)
 		overlaySpice(&merged.Spice, &attrs[i].Spice)
@@ -142,6 +145,44 @@ func (e *Enlightenments) Config(out summary.Interface) {
 func overlayEnlightenments(merged, overlay *Enlightenments) {
 	if overlay.Enabled {
 		merged.Enabled = overlay.Enabled
+	}
+}
+
+// TPM describes the attributes of a machine's Trusted Platform Module
+// configuration.
+type TPM struct {
+	Enabled bool      `json:"enabled,omitempty"`
+	Socket  TPMSocket `json:"socket,omitempty"`
+}
+
+// TPMSocket holds a set of TPM socket settings for a
+// virtual machine.
+type TPMSocket struct {
+	Path string `json:"path,omitempty"`
+}
+
+// Config adds the Trusted Platform Module configuration to the summary.
+func (tpm *TPM) Config(info MachineInfo, out summary.Interface) {
+	if tpm.Enabled {
+		out.Add("Trusted Platform Module: Enabled")
+		out.Add("TPM Socket Path: %s", tpm.SocketPath(info))
+	}
+}
+
+// SocketPath returns the TPM socket path for a machine.
+func (tpm *TPM) SocketPath(info MachineInfo) string {
+	if tpm.Socket.Path != "" {
+		return tpm.Socket.Path
+	}
+	return MakeTPMSocketPath(info)
+}
+
+func overlayTPM(merged, overlay *TPM) {
+	if overlay.Enabled {
+		merged.Enabled = overlay.Enabled
+	}
+	if overlay.Socket.Path != "" {
+		merged.Socket.Path = overlay.Socket.Path
 	}
 }
 
