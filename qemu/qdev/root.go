@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 
+	"github.com/gentlemanautomaton/machina/filesystem/sysfs"
 	"github.com/gentlemanautomaton/machina/qemu/qhost"
 	"github.com/gentlemanautomaton/machina/qemu/qhost/blockdev"
 )
@@ -162,7 +163,7 @@ func (r *Root) AddVirtioNetwork(mac string, netdev qhost.NetDev) (Network, error
 // The connection is made with the Virtual Function I/O framework. It relies
 // on an I/O Memory Management Unit on the host, which allows the device
 // to be passed through while isolating the guest from the host.
-func (r *Root) AddVFIO(device qhost.SystemDevicePath) (VFIO, error) {
+func (r *Root) AddVFIO(device sysfs.Path) (VFIO, error) {
 	if r.downstream != nil {
 		return VFIO{}, ErrDownstreamOccupied
 	}

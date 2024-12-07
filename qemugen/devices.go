@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gentlemanautomaton/machina"
-	"github.com/gentlemanautomaton/machina/qemu/qhost"
+	"github.com/gentlemanautomaton/machina/filesystem/sysfs"
 	"github.com/gentlemanautomaton/machina/vmrand"
 )
 
@@ -28,7 +28,7 @@ func applyDevices(devs []machina.Device, mdevs machina.MediatedDeviceMap, t Targ
 			}
 		}
 
-		path := qhost.SystemDevicePath(fmt.Sprintf("/sys/bus/mdev/devices/%s", id))
+		path := sysfs.Path(fmt.Sprintf("/sys/bus/mdev/devices/%s", id))
 
 		// Add a PCI Express Root device that we'll connect the mediated
 		// device to.

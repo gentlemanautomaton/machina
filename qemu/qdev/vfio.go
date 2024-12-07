@@ -1,6 +1,6 @@
 package qdev
 
-import "github.com/gentlemanautomaton/machina/qemu/qhost"
+import "github.com/gentlemanautomaton/machina/filesystem/sysfs"
 
 // https://www.youtube.com/watch?v=Xs0TJU_sIPc&t=1652s
 
@@ -8,7 +8,7 @@ import "github.com/gentlemanautomaton/machina/qemu/qhost"
 type VFIO struct {
 	id     ID
 	bus    ID
-	device qhost.SystemDevicePath
+	device sysfs.Path
 }
 
 // Driver returns the driver for the VFIO PCI passthrough device, virtio-pci.

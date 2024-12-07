@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/gentlemanautomaton/machina"
-	"github.com/gentlemanautomaton/machina/mdevfs"
+	"github.com/gentlemanautomaton/machina/filesystem/mdevfs"
 )
 
 // TeardownCmd removes host resources that were previously prepared for a

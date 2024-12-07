@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/gentlemanautomaton/machina"
-	"github.com/gentlemanautomaton/machina/mdevfs"
+	"github.com/gentlemanautomaton/machina/filesystem/mdevfs"
 )
 
 // PrepareCmd prepares the host environment for a machine.
