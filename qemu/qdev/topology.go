@@ -129,10 +129,9 @@ func (t *Topology) AddCDROM(bdev blockdev.Node) (SATACD, error) {
 // Devices returns all of the PCI Express Roots within the PCI Express Root
 // Complex.
 func (t *Topology) Devices() []Device {
+	// Return a copy of the slice.
 	devices := make([]Device, 0, len(t.devices))
-	for i := range t.devices {
-		devices = append(devices, t.devices[i])
-	}
+	devices = append(devices, t.devices...)
 	return devices
 }
 
