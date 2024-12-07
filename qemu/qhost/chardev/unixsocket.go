@@ -25,11 +25,11 @@ type UnixSocket struct {
 	LogAppend bool
 }
 
-// Add creates a new unix socket chard with the given options and
-// attaches it to the device map.
+// Add creates a new unix socket character device with the given options and
+// attaches it to the device registry.
 //
-// The returned unix socket chardev is immutable and can safely be copied
-// by value.
+// The returned character device is immutable and can safely be copied by
+// value.
 //
 // An error is returned if the device cannot be attached to the device map
 // or the socket configuration is invalid.

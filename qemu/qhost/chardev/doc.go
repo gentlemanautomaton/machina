@@ -1,2 +1,2 @@
-// Package chardev desribes the QEMU character device layer.
+// Package chardev describes the QEMU character device layer.
 package chardev
