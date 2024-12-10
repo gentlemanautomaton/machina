@@ -28,9 +28,12 @@ func (param Parameter) String() string {
 	return name + "=" + param.Value
 }
 
+// Parameters hold a set of parameters for a QEMU virtual machine option.
+type Parameters []Parameter
+
 // Add adds a named parameter with the give name and value.
 //
-// If name and value are both empty the property is not added.
+// If name and value are both empty the parameter is not added.
 func (params *Parameters) Add(name, value string) {
 	if name == "" && value == "" {
 		return
@@ -38,12 +41,9 @@ func (params *Parameters) Add(name, value string) {
 	*params = append(*params, Parameter{Name: name, Value: value})
 }
 
-// Parameters hold a set of parameters for a QEMU virtual machine option.
-type Parameters []Parameter
-
-// AddValue adds a property with the given value but no name.
+// AddValue adds a parameter with the given value but no name.
 //
-// If value is empty the property is not added.
+// If value is empty the parameter is not added.
 func (params *Parameters) AddValue(value string) {
 	if value == "" {
 		return
@@ -51,7 +51,7 @@ func (params *Parameters) AddValue(value string) {
 	*params = append(*params, Parameter{Value: value})
 }
 
-// String returns a string representation of the properties in the form
+// String returns a string representation of the parameters in the form
 // expected by QEMU options.
 func (params Parameters) String() string {
 	if len(params) == 0 {
