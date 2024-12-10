@@ -36,6 +36,24 @@ func (opt Option) Valid() bool {
 	return opt.Type != ""
 }
 
+// OptionPrefix returns the option prefix used by QEMU, which is a single
+// dash character "-". It is required by interfaces in other packages.
+func (opt Option) OptionPrefix() string {
+	return "-"
+}
+
+// OptionType returns the type of the option. It is required by interfaces
+// in other packages.
+func (opt Option) OptionType() string {
+	return opt.Type
+}
+
+// OptionParameters returns the set of parameters for the option. It is
+// required by interfaces in other packages.
+func (opt Option) OptionParameters() string {
+	return opt.Parameters.String()
+}
+
 // Options holds a set of configuration options for a QEMU virtual machine.
 type Options []Option
 

@@ -3,18 +3,25 @@ package systemdgen
 import (
 	"regexp"
 	"strings"
-
-	"github.com/gentlemanautomaton/machina/qemu"
 )
+
+// Option is a command option that can be executed in a systemd unit with
+// properly quoted arguments.
+type Option interface {
+	Valid() bool
+	OptionPrefix() string
+	OptionType() string
+	OptionParameters() string
+}
 
 // https://www.freedesktop.org/software/systemd/man/systemd.syntax.html#Quoting
 
-// QuoteOptions returns a multiline string for invocation of a QEMU virtual
-// machine with the given options.
+// QuoteOptions returns a multiline string for invocation of a command with
+// the given options.
 //
 // The returned string will be properly quoted so that it is suitable for use
 // in a systemd exec command line.
-func QuoteOptions(opts qemu.Options) string {
+func QuoteOptions[T Option, Options ~[]T](opts Options) string {
 	var b strings.Builder
 	for i, option := range opts {
 		last := i == len(opts)-1
@@ -32,16 +39,17 @@ func QuoteOptions(opts qemu.Options) string {
 //
 // The returned string will be properly quoted so that it is suitable for use
 // in a systemd exec command line.
-func QuoteOption(opt qemu.Option) string {
-	if opt.Type == "" {
+func QuoteOption[T Option](opt T) string {
+	if !opt.Valid() {
 		return ""
 	}
 
-	switch params := opt.Parameters.String(); params {
+	optionParameters := opt.OptionParameters()
+	switch optionParameters {
 	case "":
-		return QuoteArg("-" + opt.Type)
+		return QuoteArg(opt.OptionPrefix() + opt.OptionType())
 	default:
-		return QuoteArg("-"+opt.Type) + " " + QuoteArg(params)
+		return QuoteArg(opt.OptionPrefix()+opt.OptionType()) + " " + QuoteArg(optionParameters)
 	}
 }
 
