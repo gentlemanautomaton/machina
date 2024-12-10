@@ -11,9 +11,9 @@ import (
 	"github.com/gentlemanautomaton/systemdconf/unitvalue"
 )
 
-// Build returns a set of systemd unit configuration sections for machine
+// BuildQEMU returns a set of systemd unit configuration sections for machine
 // with the given options.
-func Build(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section {
+func BuildQEMU(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section {
 	const (
 		serviceTimeout  = time.Second * 90
 		shutdownTimeout = serviceTimeout - (time.Second * 5)

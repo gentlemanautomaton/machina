@@ -52,7 +52,7 @@ func (cmd GenerateCmd) Run(ctx context.Context) error {
 		options := vms[i].Options()
 
 		var buf bytes.Buffer
-		if _, err := systemdconf.WriteSections(&buf, systemdgen.Build(machines[i], options)...); err != nil {
+		if _, err := systemdconf.WriteSections(&buf, systemdgen.BuildQEMU(machines[i], options)...); err != nil {
 			return fmt.Errorf("failed to prepare configuration for %s: %v", machines[i].Name, err)
 		}
 		units = append(units, buf.String())
