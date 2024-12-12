@@ -53,9 +53,9 @@ type EmulatedDevice struct {
 	opts Emulated
 }
 
-// Backend returns the name of the TPM device backend, emulated.
+// Backend returns the name of the TPM device backend, emulator.
 func (e EmulatedDevice) Backend() Backend {
-	return "emulated"
+	return "emulator"
 }
 
 // ID returns an ID that uniquely identifies the TPM device on the host.
