@@ -9,6 +9,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/gentlemanautomaton/machina"
 	"github.com/gentlemanautomaton/machina/systemd"
+	"github.com/gentlemanautomaton/machina/systemdgen"
 )
 
 // ListCmd list the configured virtual machines.
@@ -45,7 +46,7 @@ func (cmd ListCmd) Run(ctx context.Context) error {
 	unitNames := make([]string, count)
 	results := make([]chan result, count)
 	for i := 0; i < count; i++ {
-		unitNames[i] = fmt.Sprintf("machina-%s.service", names[i])
+		unitNames[i] = fmt.Sprintf("%s.service", systemdgen.UnitNameForQEMU(names[i]))
 		results[i] = make(chan result, 1)
 	}
 

@@ -59,7 +59,7 @@ func (cmd GenerateCmd) Run(ctx context.Context) error {
 	}
 
 	for i := range vms {
-		unit := fmt.Sprintf("machina-%s", machines[i].Name)
+		unit := systemdgen.UnitNameForQEMU(machines[i].Name)
 
 		if cmd.Preview {
 			if i > 0 {

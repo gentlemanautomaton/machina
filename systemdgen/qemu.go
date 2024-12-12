@@ -11,8 +11,14 @@ import (
 	"github.com/gentlemanautomaton/systemdconf/unitvalue"
 )
 
-// BuildQEMU returns a set of systemd unit configuration sections for machine
-// with the given options.
+// UnitNameForQEMU returns the systemd unit name for the machine's qemu
+// process.
+func UnitNameForQEMU(name machina.MachineName) string {
+	return fmt.Sprintf("machina-%s", name)
+}
+
+// BuildQEMU returns a set of systemd unit configuration sections for the
+// given machine and options.
 func BuildQEMU(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section {
 	const (
 		serviceTimeout  = time.Second * 90
@@ -21,7 +27,7 @@ func BuildQEMU(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Sec
 	quotedName := QuoteArg(string(machine.Name))
 	return []systemdconf.Section{
 		systemdconf.Unit{
-			Description:        fmt.Sprintf("machina KVM %s", machine.Name),
+			Description:        fmt.Sprintf("machina qemu/kvm %s", machine.Name),
 			After:              []string{"network-online.target"},
 			Wants:              []string{"network-online.target"},
 			StartLimitInterval: time.Minute,

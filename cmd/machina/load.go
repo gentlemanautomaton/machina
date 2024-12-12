@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gentlemanautomaton/machina"
+	"github.com/gentlemanautomaton/machina/systemdgen"
 )
 
 // ComposedMachine holds virtual machine information and that has been loaded
@@ -156,7 +157,7 @@ func LoadMachineUnits(names ...machina.MachineName) (units []string, err error) 
 	}
 
 	for i := range machines {
-		units = append(units, fmt.Sprint("machina-", machines[i].Name))
+		units = append(units, systemdgen.UnitNameForQEMU(machines[i].Name))
 	}
 
 	return units, nil
