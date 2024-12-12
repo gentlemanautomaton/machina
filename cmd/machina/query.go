@@ -20,7 +20,7 @@ type QueryCmd struct {
 
 // QueryPCICmd sends queries to the given virtual machines.
 type QueryPCICmd struct {
-	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to query.'"`
+	Machines []machina.MachineName `kong:"arg,predictor=machines,help='Virtual machines to query.'"`
 }
 
 // Run executes the query pci command.
@@ -44,7 +44,7 @@ func (cmd QueryPCICmd) Run(ctx context.Context) error {
 
 // QueryCPUCmd returns information about the virtual CPUs in the given virtual machines.
 type QueryCPUCmd struct {
-	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to query.'"`
+	Machines []machina.MachineName `kong:"arg,predictor=machines,help='Virtual machines to query.'"`
 }
 
 // Run executes the query pci command.
@@ -68,7 +68,7 @@ func (cmd QueryCPUCmd) Run(ctx context.Context) error {
 
 type qmpQueryAction func(c *qmp.Client, name machina.MachineName)
 
-func qmpQuery(ctx context.Context, machines []string, action qmpQueryAction) error {
+func qmpQuery(ctx context.Context, machines []machina.MachineName, action qmpQueryAction) error {
 	vms, _, err := LoadAndComposeMachines(machines...)
 	if err != nil {
 		return err

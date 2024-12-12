@@ -1,11 +1,15 @@
 package main
 
-import "context"
+import (
+	"context"
+
+	"github.com/gentlemanautomaton/machina"
+)
 
 // StartCmd attempts to start the systemd units for the given virtual
 // machines.
 type StartCmd struct {
-	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to start.'"`
+	Machines []machina.MachineName `kong:"arg,predictor=machines,help='Virtual machines to start.'"`
 }
 
 // Run executes the machine start command.

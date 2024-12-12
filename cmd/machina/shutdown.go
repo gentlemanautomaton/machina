@@ -7,16 +7,17 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gentlemanautomaton/machina"
 	"github.com/gentlemanautomaton/machina/qmp"
 	"github.com/gentlemanautomaton/machina/qmp/qmpcmd"
 )
 
 // ShutdownCmd sends a shutdown command to the given virtual machines.
 type ShutdownCmd struct {
-	Machines []string      `kong:"arg,predictor=machines,help='Virtual machines to shutdown gracefully.'"`
-	System   bool          `kong:"system,help='Use QMP sockets reserved for systemd.'"`
-	Wait     bool          `kong:"wait,help='Wait for the virtual machines to stop before returning.'"`
-	Timeout  time.Duration `kong:"timeout,help='Requests forceful termination if the timeout is exceeded before a virtual machine is stopped. Implies wait.'"`
+	Machines []machina.MachineName `kong:"arg,predictor=machines,help='Virtual machines to shutdown gracefully.'"`
+	System   bool                  `kong:"system,help='Use QMP sockets reserved for systemd.'"`
+	Wait     bool                  `kong:"wait,help='Wait for the virtual machines to stop before returning.'"`
+	Timeout  time.Duration         `kong:"timeout,help='Requests forceful termination if the timeout is exceeded before a virtual machine is stopped. Implies wait.'"`
 }
 
 // Run executes the graceful shutdown command.

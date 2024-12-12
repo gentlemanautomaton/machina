@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+
+	"github.com/gentlemanautomaton/machina"
 )
 
 // EnableCmd enables systemd units for one or more virtual machines.
 type EnableCmd struct {
-	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to enable.'"`
+	Machines []machina.MachineName `kong:"arg,predictor=machines,help='Virtual machines to enable.'"`
 }
 
 // Run executes the machine enablement command.

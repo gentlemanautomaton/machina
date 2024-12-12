@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io"
 	"sync"
+
+	"github.com/gentlemanautomaton/machina"
 )
 
 // ObserveCmd listens for events for the given virtual machines.
 type ObserveCmd struct {
-	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to observe.'"`
+	Machines []machina.MachineName `kong:"arg,predictor=machines,help='Virtual machines to observe.'"`
 }
 
 // Run executes the observation command.

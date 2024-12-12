@@ -9,7 +9,7 @@ import (
 
 // CatCmd prints configuration for the requested virtual machines.
 type CatCmd struct {
-	Machines []string `kong:"arg,predictor=machines,optional,help='Virtual machines to print.'"`
+	Machines []machina.MachineName `kong:"arg,predictor=machines,optional,help='Virtual machines to print.'"`
 }
 
 // Run executes the cat command.

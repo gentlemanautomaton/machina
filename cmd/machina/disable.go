@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+
+	"github.com/gentlemanautomaton/machina"
 )
 
 // DisableCmd disables systemd units for one or more virtual machines.
 type DisableCmd struct {
-	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to disable.'"`
+	Machines []machina.MachineName `kong:"arg,predictor=machines,help='Virtual machines to disable.'"`
 }
 
 // Run executes the machine disablement command.

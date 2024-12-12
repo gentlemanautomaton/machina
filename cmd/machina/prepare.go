@@ -11,7 +11,7 @@ import (
 
 // PrepareCmd prepares the host environment for a machine.
 type PrepareCmd struct {
-	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to prepare.'"`
+	Machines []machina.MachineName `kong:"arg,predictor=machines,help='Virtual machines to prepare.'"`
 }
 
 // Run executes the machine preparation command.

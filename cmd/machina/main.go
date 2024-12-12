@@ -58,7 +58,11 @@ func main() {
 	var opts []kongplete.Option
 	{
 		machines, _ := EnumMachines()
-		opts = append(opts, kongplete.WithPredictor("machines", complete.PredictSet(machines...)))
+		terms := make([]string, 0, len(machines))
+		for _, machine := range machines {
+			terms = append(terms, string(machine))
+		}
+		opts = append(opts, kongplete.WithPredictor("machines", complete.PredictSet(terms...)))
 	}
 	kongplete.Complete(parser, opts...)
 

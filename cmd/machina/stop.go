@@ -1,13 +1,17 @@
 package main
 
-import "context"
+import (
+	"context"
+
+	"github.com/gentlemanautomaton/machina"
+)
 
 // StopCmd attempts to stop the systemd units for the given virtual
 // machines.
 //
 // TODO: Perform a more graceful shutdown via QMP.
 type StopCmd struct {
-	Machines []string `kong:"arg,predictor=machines,help='Virtual machines to stop.'"`
+	Machines []machina.MachineName `kong:"arg,predictor=machines,help='Virtual machines to stop.'"`
 }
 
 // Run executes the machine stop command.
