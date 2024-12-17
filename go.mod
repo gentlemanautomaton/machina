@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kong v1.5.1
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/fatih/color v1.18.0
-	github.com/gentlemanautomaton/systemdconf v0.0.0-20211101074721-b01196476230
+	github.com/gentlemanautomaton/systemdconf v0.0.0-20241210194348-76039ab42605
 	github.com/google/uuid v1.6.0
 	github.com/posener/complete v1.2.3
 	github.com/vishvananda/netlink v1.3.0
