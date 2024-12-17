@@ -18,7 +18,12 @@ func (settings Settings) Options() Options {
 	opts = append(opts, settings.State.Options()...)
 	opts = append(opts, settings.Control.Options()...)
 	opts.Add("tpm2")
-	opts.Add("log", Parameter{Name: "level", Value: "20"})
+
+	// Log level 5 and above enable debug logging.
+	// Log level 2 and above might show sensitive data in the log.
+	// Log level 2 and above will be very verbose.
+	opts.Add("log", Parameter{Name: "level", Value: "1"})
+
 	return opts
 }
 
