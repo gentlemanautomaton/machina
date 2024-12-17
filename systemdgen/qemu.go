@@ -14,7 +14,7 @@ import (
 // UnitNameForQEMU returns the systemd unit name for the machine's qemu
 // process.
 func UnitNameForQEMU(name machina.MachineName) string {
-	return fmt.Sprintf("machina-%s", name)
+	return fmt.Sprintf("machina-qemu-%s", name)
 }
 
 // BuildQEMU returns a set of systemd unit configuration sections for the
@@ -35,14 +35,14 @@ func BuildQEMU(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Sec
 		},
 		systemdconf.Service{
 			Type:               "simple",
-			ExecStartPre:       []string{fmt.Sprintf("machina prepare %s", quotedName)},
+			ExecStartPre:       []string{fmt.Sprintf("machina prepare qemu %s", quotedName)},
 			ExecStart:          []string{fmt.Sprintf("qemu-system-x86_64 \\\n%s", QuoteOptions(opts))},
 			ExecStop:           []string{fmt.Sprintf("machina shutdown --system --timeout %s %s", shutdownTimeout, quotedName)},
 			ExecStopPost:       []string{fmt.Sprintf("machina teardown %s", quotedName)},
 			TimeoutStop:        serviceTimeout,
 			RestartInterval:    time.Second * 10,
 			Restart:            unitvalue.RestartOnFailure,
-			RuntimeDirectories: []string{path.Join("machina", string(machine.Name))},
+			RuntimeDirectories: []string{path.Join("machina", string(machine.Name), "qmp")},
 		},
 		systemdconf.Install{
 			WantedBy: []string{"multi-user.target"},

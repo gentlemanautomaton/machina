@@ -26,7 +26,7 @@ func MakeQMPSocketPaths(info MachineInfo, names ...string) (paths []string) {
 	}
 	for _, name := range names {
 		sock := fmt.Sprintf("%s.qmp.socket", name)
-		paths = append(paths, path.Join(LinuxRunDir, string(info.Name), sock))
+		paths = append(paths, path.Join(LinuxRunDir, string(info.Name), "qmp", sock))
 	}
 	return paths
 }
@@ -41,5 +41,5 @@ func MakeTPMSocketPath(info MachineInfo) string {
 	if info.Name == "" {
 		return ""
 	}
-	return path.Join(LinuxRunDir, string(info.Name), "tpm.socket")
+	return path.Join(LinuxRunDir, string(info.Name), "swtpm", "control.socket")
 }

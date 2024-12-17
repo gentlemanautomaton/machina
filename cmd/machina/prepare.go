@@ -11,11 +11,17 @@ import (
 
 // PrepareCmd prepares the host environment for a machine.
 type PrepareCmd struct {
+	QEMU PrepareQEMUCmd `kong:"cmd,help='Prepares the host environment for a qemu/kvm process to start.'"`
+}
+
+// PrepareQEMUCmd prepares the host environment for a machine's qemu/kvm
+// process to run.
+type PrepareQEMUCmd struct {
 	Machines []machina.MachineName `kong:"arg,predictor=machines,help='Virtual machines to prepare.'"`
 }
 
 // Run executes the machine preparation command.
-func (cmd PrepareCmd) Run(ctx context.Context) error {
+func (cmd PrepareQEMUCmd) Run(ctx context.Context) error {
 	machines, sys, err := LoadAndComposeMachines(cmd.Machines...)
 	if err != nil {
 		return err
