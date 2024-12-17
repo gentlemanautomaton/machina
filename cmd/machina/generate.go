@@ -13,6 +13,8 @@ import (
 	"github.com/gentlemanautomaton/machina"
 	"github.com/gentlemanautomaton/machina/qemu/qvm"
 	"github.com/gentlemanautomaton/machina/qemugen"
+	"github.com/gentlemanautomaton/machina/swtpm"
+	"github.com/gentlemanautomaton/machina/swtpmgen"
 	"github.com/gentlemanautomaton/machina/systemdgen"
 	"github.com/gentlemanautomaton/systemdconf"
 )
@@ -34,6 +36,7 @@ func (cmd GenerateCmd) Run(ctx context.Context) error {
 
 	var machines []machina.MachineInfo
 	var vms []qvm.Definition
+	var tpms []swtpm.Settings
 	for _, name := range cmd.Machines {
 		machine, err := LoadMachine(name)
 		if err != nil {
@@ -41,37 +44,70 @@ func (cmd GenerateCmd) Run(ctx context.Context) error {
 		}
 		vm, err := qemugen.Build(machine, sys)
 		if err != nil {
-			return fmt.Errorf("failed to build configuration for \"%s\": %v", name, err)
+			return fmt.Errorf("failed to build QEMU configuration for \"%s\": %v", name, err)
+		}
+		tpm, err := swtpmgen.BuildSettings(machine, sys)
+		if err != nil {
+			return fmt.Errorf("failed to build software TPM configuration for \"%s\": %v", name, err)
 		}
 		machines = append(machines, machine.Info())
 		vms = append(vms, vm)
+		tpms = append(tpms, tpm)
 	}
 
-	var units []string
+	var qemuUnits []string
+	var tpmUnits []string
 	for i := range vms {
-		options := vms[i].Options()
+		var (
+			qemuOptions        = vms[i].Options()
+			tpmEmulatorOptions = tpms[i].Emulator.Options()
+			tpmSetupOptions    = tpms[i].Setup.Options()
+		)
 
-		var buf bytes.Buffer
-		if _, err := systemdconf.WriteSections(&buf, systemdgen.BuildQEMU(machines[i], options)...); err != nil {
-			return fmt.Errorf("failed to prepare configuration for %s: %v", machines[i].Name, err)
+		var qemuBindToUnits []string
+		if tpms[i].Emulator.Enabled {
+			qemuBindToUnits = append(qemuBindToUnits, systemdgen.UnitNameForTPM(machines[i].Name)+".service")
 		}
-		units = append(units, buf.String())
+
+		var qemuBuf bytes.Buffer
+		if _, err := systemdconf.WriteSections(&qemuBuf, systemdgen.BuildQEMU(machines[i], qemuOptions, qemuBindToUnits...)...); err != nil {
+			return fmt.Errorf("failed to prepare QEMU configuration for %s: %v", machines[i].Name, err)
+		}
+		qemuUnits = append(qemuUnits, qemuBuf.String())
+
+		var tpmBuf bytes.Buffer
+		if _, err := systemdconf.WriteSections(&tpmBuf, systemdgen.BuildTPM(machines[i], tpmEmulatorOptions, tpmSetupOptions)...); err != nil {
+			return fmt.Errorf("failed to prepare software TPM configuration for %s: %v", machines[i].Name, err)
+		}
+		tpmUnits = append(tpmUnits, tpmBuf.String())
 	}
 
 	for i := range vms {
-		unit := systemdgen.UnitNameForQEMU(machines[i].Name)
+		qemuUnitName := systemdgen.UnitNameForQEMU(machines[i].Name)
+		tpmUnitName := systemdgen.UnitNameForTPM(machines[i].Name)
 
 		if cmd.Preview {
 			if i > 0 {
 				fmt.Println()
 			}
-			fmt.Printf("----%s----\n", machines[i].Name)
-			fmt.Print(units[i])
+			fmt.Printf("----%s----\n", qemuUnitName)
+			fmt.Print(qemuUnits[i])
+			if tpms[i].Emulator.Enabled {
+				fmt.Println()
+				fmt.Printf("----%s----\n", tpmUnitName)
+				fmt.Print(tpmUnits[i])
+			}
 			continue
 		}
 
-		if err := writeUnit(unit, units[i]); err != nil {
+		if err := writeUnit(qemuUnitName, qemuUnits[i]); err != nil {
 			return err
+		}
+
+		if tpms[i].Emulator.Enabled {
+			if err := writeUnit(tpmUnitName, tpmUnits[i]); err != nil {
+				return err
+			}
 		}
 	}
 

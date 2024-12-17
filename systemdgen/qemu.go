@@ -19,7 +19,10 @@ func UnitNameForQEMU(name machina.MachineName) string {
 
 // BuildQEMU returns a set of systemd unit configuration sections for the
 // given machine and options.
-func BuildQEMU(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Section {
+//
+// If bindToUnits are provided, the resulting qemu system unit will be bound
+// to the provided systemd units, and will start after them.
+func BuildQEMU(machine machina.MachineInfo, opts qemu.Options, bindToUnits ...string) []systemdconf.Section {
 	const (
 		serviceTimeout  = time.Second * 90
 		shutdownTimeout = serviceTimeout - (time.Second * 5)
@@ -28,7 +31,8 @@ func BuildQEMU(machine machina.MachineInfo, opts qemu.Options) []systemdconf.Sec
 	return []systemdconf.Section{
 		systemdconf.Unit{
 			Description:        fmt.Sprintf("machina qemu/kvm %s", machine.Name),
-			After:              []string{"network-online.target"},
+			After:              append([]string{"network-online.target"}, bindToUnits...),
+			BindsTo:            bindToUnits,
 			Wants:              []string{"network-online.target"},
 			StartLimitInterval: time.Minute,
 			StartLimitBurst:    2,
