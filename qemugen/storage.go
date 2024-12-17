@@ -42,6 +42,7 @@ func DefaultStorageHandlers() StorageHandlerMap {
 		"iso-scsi":  scsiCDROM{},
 		"iso-usb":   usbCDROM{},
 		"firmware":  firmwareHandler{},
+		"tpm-data":  noopHandler{},
 	}
 }
 
@@ -314,5 +315,18 @@ func (h firmwareHandler) Apply(spec VolumeSpec, t Target) error {
 
 	// Onboard device configured with special syntax elsewhere
 
+	return nil
+}
+
+type noopHandler struct{}
+
+func (noopHandler) NodeName(spec VolumeSpec) blockdev.NodeName {
+	if spec.Storage.ReadOnly {
+		return blockdev.NodeName(spec.Volume.Name)
+	}
+	return blockdev.NodeName(fmt.Sprintf("%s-%s", spec.Machine.Name, spec.Volume.Name))
+}
+
+func (h noopHandler) Apply(spec VolumeSpec, t Target) error {
 	return nil
 }
