@@ -1,13 +1,9 @@
-package qemu_test
+package commandoption_test
 
-import (
-	"testing"
-
-	"github.com/gentlemanautomaton/machina/qemu"
-)
+import "testing"
 
 func TestParametersAdd(t *testing.T) {
-	var params qemu.Parameters
+	var params Parameters
 	params.AddValue("test")
 	params.Add("a", "1")
 	want, got := "test,a=1", params.String()
@@ -17,7 +13,7 @@ func TestParametersAdd(t *testing.T) {
 }
 
 func TestParametersAddEmpty(t *testing.T) {
-	var params qemu.Parameters
+	var params Parameters
 	params.Add("", "")
 	params.AddValue("")
 	if len(params) != 0 {

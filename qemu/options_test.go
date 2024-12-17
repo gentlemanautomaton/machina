@@ -46,21 +46,21 @@ func TestOptionEmpty(t *testing.T) {
 	}
 }
 
-func TestOptionValid(t *testing.T) {
-	var empty qemu.Option
-	if empty.Valid() {
-		t.Fail()
+func TestParametersAdd(t *testing.T) {
+	var params qemu.Parameters
+	params.AddValue("test")
+	params.Add("a", "1")
+	want, got := "test,a=1", params.String()
+	if want != got {
+		t.Errorf("want \"%s\" (got \"%s\")", want, got)
 	}
+}
 
-	missingType := qemu.Option{
-		Parameters: qemu.Parameters{{Name: "test"}},
-	}
-	if missingType.Valid() {
-		t.Fail()
-	}
-
-	noParams := qemu.Option{Type: "test"}
-	if !noParams.Valid() {
+func TestParametersAddEmpty(t *testing.T) {
+	var params qemu.Parameters
+	params.Add("", "")
+	params.AddValue("")
+	if len(params) != 0 {
 		t.Fail()
 	}
 }

@@ -3,16 +3,9 @@ package systemdgen
 import (
 	"regexp"
 	"strings"
-)
 
-// Option is a command option that can be executed in a systemd unit with
-// properly quoted arguments.
-type Option interface {
-	Valid() bool
-	OptionPrefix() string
-	OptionType() string
-	OptionParameters() string
-}
+	"github.com/gentlemanautomaton/machina/commandoption"
+)
 
 // https://www.freedesktop.org/software/systemd/man/systemd.syntax.html#Quoting
 
@@ -21,7 +14,7 @@ type Option interface {
 //
 // The returned string will be properly quoted so that it is suitable for use
 // in a systemd exec command line.
-func QuoteOptions[T Option, Options ~[]T](opts Options) string {
+func QuoteOptions[T commandoption.Option, Options commandoption.Options[T]](opts Options) string {
 	var b strings.Builder
 	for i, option := range opts {
 		last := i == len(opts)-1
@@ -39,17 +32,17 @@ func QuoteOptions[T Option, Options ~[]T](opts Options) string {
 //
 // The returned string will be properly quoted so that it is suitable for use
 // in a systemd exec command line.
-func QuoteOption[T Option](opt T) string {
-	if !opt.Valid() {
+func QuoteOption[T commandoption.Option](opt T) string {
+	data := commandoption.Data(opt)
+	if data.Type == "" {
 		return ""
 	}
 
-	optionParameters := opt.OptionParameters()
-	switch optionParameters {
+	switch params := data.Parameters.String(); params {
 	case "":
-		return QuoteArg(opt.OptionPrefix() + opt.OptionType())
+		return QuoteArg(opt.Prefix() + data.Type)
 	default:
-		return QuoteArg(opt.OptionPrefix()+opt.OptionType()) + " " + QuoteArg(optionParameters)
+		return QuoteArg(opt.Prefix()+data.Type) + " " + QuoteArg(params)
 	}
 }
 

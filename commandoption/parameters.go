@@ -1,11 +1,11 @@
-package qemu
+package commandoption
 
 import (
 	"strings"
 	"unicode"
 )
 
-// Parameter describes a parameter for a QEMU virtual machine option.
+// Parameter describes a parameter for a command option.
 type Parameter struct {
 	Name  string
 	Value string
@@ -28,7 +28,7 @@ func (param Parameter) String() string {
 	return name + "=" + param.Value
 }
 
-// Parameters hold a set of parameters for a QEMU virtual machine option.
+// Parameters hold a set of parameters for a command option.
 type Parameters []Parameter
 
 // Add adds a named parameter with the give name and value.
@@ -52,7 +52,7 @@ func (params *Parameters) AddValue(value string) {
 }
 
 // String returns a string representation of the parameters in the form
-// expected by QEMU options.
+// expected by a command option.
 func (params Parameters) String() string {
 	if len(params) == 0 {
 		return ""

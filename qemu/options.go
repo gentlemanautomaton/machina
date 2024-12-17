@@ -1,6 +1,6 @@
 package qemu
 
-import "strings"
+import "github.com/gentlemanautomaton/machina/commandoption"
 
 // TODO: Someday consider outputting configuration in the readconfig format,
 // whenver that gets finalized. See:
@@ -9,92 +9,26 @@ import "strings"
 // Option is an option for a QEMU virtual machine.
 //
 // For an option to be valid, it must have a type. Parameters are optional.
-type Option struct {
-	Type       string
-	Parameters Parameters
-}
+type Option commandoption.Data
 
 // String returns a string representation of the option.
 //
 // It returns an empty string if the option lacks a type.
 func (opt Option) String() string {
-	if opt.Type == "" {
-		return ""
-	}
-
-	switch params := opt.Parameters.String(); params {
-	case "":
-		return "-" + opt.Type
-	default:
-		return "-" + opt.Type + " " + params
-	}
+	return commandoption.String(opt)
 }
 
-// Valid returns true if the option has a type. It does not evaluate
-// the semantic meaning and correctness of the option.
-func (opt Option) Valid() bool {
-	return opt.Type != ""
-}
-
-// OptionPrefix returns the option prefix used by QEMU, which is a single
-// dash character "-". It is required by interfaces in other packages.
-func (opt Option) OptionPrefix() string {
+// Prefix returns the option prefix used by QEMU, which is a single
+// dash character "-".
+func (opt Option) Prefix() string {
 	return "-"
 }
 
-// OptionType returns the type of the option. It is required by interfaces
-// in other packages.
-func (opt Option) OptionType() string {
-	return opt.Type
-}
-
-// OptionParameters returns the set of parameters for the option. It is
-// required by interfaces in other packages.
-func (opt Option) OptionParameters() string {
-	return opt.Parameters.String()
-}
-
 // Options holds a set of configuration options for a QEMU virtual machine.
-type Options []Option
+type Options = commandoption.Options[Option]
 
-// Add adds an option with the given type and parameters.
-//
-// If type is empty the property is not added.
-func (opts *Options) Add(typ string, params ...Parameter) {
-	if typ == "" {
-		return
-	}
-	*opts = append(*opts, Option{Type: typ, Parameters: params})
-}
+// Parameter describes a parameter for a QEMU virtual machine option.
+type Parameter = commandoption.Parameter
 
-// Args returns the command line arguments for invocation of a QEMU virtual
-// machine with the given options.
-func (opts Options) Args() []string {
-	if len(opts) == 0 {
-		return nil
-	}
-	args := make([]string, 0, len(opts)*2)
-	for _, opt := range opts {
-		if opt.Valid() {
-			args = append(args, "-"+opt.Type)
-			if params := opt.Parameters.String(); params != "" {
-				args = append(args, params)
-			}
-		}
-	}
-	return args
-}
-
-// String returns a multiline string for invocation of a QEMU virtual
-// machine with the given options.
-func (opts Options) String() string {
-	var b strings.Builder
-	for i, option := range opts {
-		last := i == len(opts)-1
-		b.WriteString(option.String())
-		if !last {
-			b.WriteString(" \\\n")
-		}
-	}
-	return b.String()
-}
+// Parameters hold a set of parameters for a QEMU virtual machine option.
+type Parameters = commandoption.Parameters
