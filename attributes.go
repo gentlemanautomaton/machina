@@ -1,6 +1,9 @@
 package machina
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/gentlemanautomaton/machina/qemu/qguest"
 	"github.com/gentlemanautomaton/machina/summary"
 )
@@ -152,6 +155,7 @@ func overlayEnlightenments(merged, overlay *Enlightenments) {
 // configuration.
 type TPM struct {
 	Enabled bool      `json:"enabled,omitempty"`
+	Data    Volume    `json:"data,omitempty"`
 	Socket  TPMSocket `json:"socket,omitempty"`
 }
 
@@ -165,8 +169,25 @@ type TPMSocket struct {
 func (tpm *TPM) Config(info MachineInfo, out summary.Interface) {
 	if tpm.Enabled {
 		out.Add("Trusted Platform Module: Enabled")
+		if !tpm.Data.IsEmpty() {
+			out.Add("TPM Data Directory: %s", tpm.Data)
+		}
 		out.Add("TPM Socket Path: %s", tpm.SocketPath(info))
 	}
+}
+
+// DataDirectoryPath returns the TPM data directory path for a machine.
+func (tpm *TPM) DataDirectoryPath(info MachineInfo, vars Vars, storage StorageMap) (string, error) {
+	if tpm.Data.Storage == "" {
+		return "", errors.New("tpm data does not specify a machina storage pool")
+	}
+
+	store, ok := storage[tpm.Data.Storage]
+	if !ok {
+		return "", fmt.Errorf("tpm data uses an unspecified machina storage pool: %s", tpm.Data.Storage)
+	}
+
+	return string(store.Volume(info, vars, tpm.Data.Name)), nil
 }
 
 // SocketPath returns the TPM socket path for a machine.
@@ -180,6 +201,9 @@ func (tpm *TPM) SocketPath(info MachineInfo) string {
 func overlayTPM(merged, overlay *TPM) {
 	if overlay.Enabled {
 		merged.Enabled = overlay.Enabled
+	}
+	if !overlay.Data.IsEmpty() {
+		merged.Data = overlay.Data
 	}
 	if overlay.Socket.Path != "" {
 		merged.Socket.Path = overlay.Socket.Path
