@@ -74,19 +74,18 @@ func (opts Options[T]) Args() []string {
 
 // String returns a string representation of the command options.
 func (opts Options[T]) String() string {
-	return strings.Join(opts.Args(), " ")
+	return opts.Join(" ")
 }
 
-// Multiline returns a multiline string for invocation of a command
-// with the given options.
-func (opts Options[T]) Multiline() string {
+// Join concatenates each of the command options to create a single string.
+// The separator string sep is placed between options in the resulting string.
+func (opts Options[T]) Join(sep string) string {
 	var b strings.Builder
 	for i, option := range opts {
-		last := i == len(opts)-1
-		b.WriteString(option.String())
-		if !last {
-			b.WriteString(" \\\n")
+		if i > 0 {
+			b.WriteString(sep)
 		}
+		b.WriteString(option.String())
 	}
 	return b.String()
 }
