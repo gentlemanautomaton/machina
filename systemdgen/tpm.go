@@ -18,8 +18,10 @@ func UnitNameForTPM(name machina.MachineName) string {
 	return fmt.Sprintf("machina-swtpm-%s", name)
 }
 
-// BuildTPM returns a set of systemd unit configuration sections for the
-// given machine and options.
+// BuildTPM returns a set of systemd unit configuration sections for a
+// software TPM unit running a swtpm process. The unit will handle TPM
+// requests for the given machine's qemu/kvm process. The providedTPM
+// emulator and setup options will be used in the unit's configuration.
 func BuildTPM(machine machina.MachineInfo, emulator swtpmemulator.Options, setup swtpmsetup.Options) []systemdconf.Section {
 	const (
 		serviceTimeout  = time.Second * 90
@@ -31,7 +33,6 @@ func BuildTPM(machine machina.MachineInfo, emulator swtpmemulator.Options, setup
 			Description:        fmt.Sprintf("machina swtpm %s", machine.Name),
 			StartLimitInterval: time.Minute,
 			StartLimitBurst:    2,
-			Before:             []string{UnitNameForQEMU(machine.Name)},
 		},
 		systemdconf.Service{
 			Type: "simple",
