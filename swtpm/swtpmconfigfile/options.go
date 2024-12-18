@@ -19,7 +19,7 @@ func (opt Option) String() string {
 		return ""
 	}
 
-	return opt.Name + "=" + opt.Value
+	return opt.Name + " = " + opt.Value
 }
 
 // Options holds a set of configuration options for a software TPM
