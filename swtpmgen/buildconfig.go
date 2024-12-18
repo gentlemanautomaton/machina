@@ -36,8 +36,8 @@ func BuildConfig(m machina.Machine, sys machina.System) (swtpm.Config, error) {
 		Setup: swtpmsetup.Config{
 			CreationTool: swtpmsetup.CertificateCreationTool{
 				Executable:  "/usr/bin/swtpm_localca",
-				ConfigFile:  path.Join("${RUNTIME_DIRECTORY}", "config", "swtpm_setup.conf"),
-				OptionsFile: path.Join("${RUNTIME_DIRECTORY}", "config", "swtpm_setup.options"),
+				ConfigFile:  path.Join("${RUNTIME_DIRECTORY}", "config", "swtpm-localca.conf"),
+				OptionsFile: path.Join("${RUNTIME_DIRECTORY}", "config", "swtpm-localca.options"),
 			},
 			ActivePCRBanks: []string{"sha256"},
 		},

@@ -71,14 +71,14 @@ func prepareSWTPM(machine machina.Machine, sys machina.System) error {
 		return err
 	}
 
-	// Software TPM certificate authority configuration (swtpm_localca.conf)
-	authorityConfigPath := path.Join(configDir, "swtpm_localca.conf")
+	// Software TPM certificate authority configuration (swtpm-localca.conf)
+	authorityConfigPath := path.Join(configDir, "swtpm-localca.conf")
 	if err := writeConfigFile(authorityConfigPath, config.Authority); err != nil {
 		return err
 	}
 
-	// Software TPM certificate configuration (swtpm_localca.options)
-	certificateConfigPath := path.Join(configDir, "swtpm_localca.options")
+	// Software TPM certificate configuration (swtpm-localca.options)
+	certificateConfigPath := path.Join(configDir, "swtpm-localca.options")
 	if err := writeConfigFile(certificateConfigPath, config.Certificate); err != nil {
 		return err
 	}
