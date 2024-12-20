@@ -36,8 +36,8 @@ func applyTPM(machine machina.MachineInfo, proto machina.TPM, t Target) error {
 		return err
 	}
 
-	// Add a memory-mapped TPM TIS device to the machine.
-	if _, err := t.VM.Topology.AddTPM(tpm.ID()); err != nil {
+	// Add a memory-mapped TPM CRB device to the machine.
+	if _, err := t.VM.Topology.AddTPMCRB(tpm.ID()); err != nil {
 		return err
 	}
 

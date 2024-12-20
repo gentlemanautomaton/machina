@@ -96,9 +96,20 @@ func (t *Topology) AddPanic() (PVPanic, error) {
 	return p, nil
 }
 
-// AddTPM connects a Trusted Platform Module device to the machine via memory mapping.
-func (t *Topology) AddTPM(device tpmdev.ID) (TPM, error) {
-	tpm := TPM{
+// AddTPMTIS connects a Trusted Platform Module device to the machine via memory mapping.
+// The device will implement the TPM Interface Specification.
+func (t *Topology) AddTPMTIS(device tpmdev.ID) (TPMTIS, error) {
+	tpm := TPMTIS{
+		device: device,
+	}
+	t.devices = append(t.devices, tpm)
+	return tpm, nil
+}
+
+// AddTPMCRB connects a Trusted Platform Module device to the machine via memory mapping.
+// The device will implement the TPM Command Response Buffer specification.
+func (t *Topology) AddTPMCRB(device tpmdev.ID) (TPMCRB, error) {
+	tpm := TPMCRB{
 		device: device,
 	}
 	t.devices = append(t.devices, tpm)
