@@ -8,11 +8,17 @@ import (
 // DirPath is the path of a directory.
 type DirPath string
 
+// FatType is the FAT filesystem type of a vvfat (virtual VFAT) device.
+// Valid options are 12, 16 and 32. The FAT32 format is considered
+// experimental and may be buggy.
+type FatType string
+
 // Dir holds configuration for a vvfat (virtual VFAT) protocol node that
 // provides access to a host directory by simulating a VFAT disk.
 type Dir struct {
 	Name     NodeName
 	Path     DirPath
+	FatType  FatType
 	ReadOnly bool
 	Label    string
 }
@@ -75,6 +81,9 @@ func (d DirNode) Properties() Properties {
 	props := Properties{
 		{Name: "driver", Value: string(d.Driver())},
 		{Name: "node-name", Value: string(d.opts.Name)},
+	}
+	if d.opts.FatType != "" {
+		props.Add("fat-type", string(d.opts.FatType))
 	}
 	if d.opts.ReadOnly {
 		props.Add("read-only", "on")
