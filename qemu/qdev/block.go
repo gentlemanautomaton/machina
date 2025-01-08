@@ -14,13 +14,14 @@ type BlockOption interface {
 
 // Block is a Virtio Block device.
 type Block struct {
-	id           ID
-	bus          ID
-	numQueues    int
-	iothread     qhost.ID
-	blockdev     blockdev.NodeName
-	serialNumber string
-	bootIndex    BootIndex
+	id                 ID
+	bus                ID
+	numQueues          int
+	discardGranularity DiscardGranularity
+	iothread           qhost.ID
+	blockdev           blockdev.NodeName
+	serialNumber       string
+	bootIndex          BootIndex
 }
 
 // Driver returns the driver for the Virtio Block device,
@@ -42,6 +43,9 @@ func (block Block) Properties() Properties {
 		{Name: "iothread", Value: string(block.iothread)},
 		{Name: "num-queues", Value: strconv.Itoa(queues)},
 		{Name: "drive", Value: string(block.blockdev)},
+	}
+	if block.discardGranularity != 0 {
+		props.Add("discard_granularity", block.discardGranularity.String())
 	}
 	if block.serialNumber != "" {
 		props.Add("serial", block.serialNumber)

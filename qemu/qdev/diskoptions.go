@@ -6,6 +6,24 @@ import (
 	"github.com/gentlemanautomaton/machina/wwn"
 )
 
+// DiscardGranularity is the granularity of discard operations on a QEMU disk
+// device. If this value is not set explicitly, QEMU will select a default
+// value that matches the block size of the device.
+type DiscardGranularity int
+
+// String returns a string representation of the discard granularity.
+func (granularity DiscardGranularity) String() string {
+	return strconv.Itoa(int(granularity))
+}
+
+func (granularity DiscardGranularity) applySCSIHD(disk *SCSIHD) {
+	disk.discardGranularity = granularity
+}
+
+func (granularity DiscardGranularity) applyBlock(block *Block) {
+	block.discardGranularity = granularity
+}
+
 // BootOrder keeps track of the preferred order of boot devices.
 type BootOrder struct {
 	index int
