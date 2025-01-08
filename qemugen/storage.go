@@ -87,6 +87,7 @@ func (h rawDiskHandler) Apply(spec VolumeSpec, t Target) error {
 		Name:     name.Child("file"),
 		Path:     blockdev.FilePath(spec.VolumePath()),
 		ReadOnly: spec.Storage.ReadOnly,
+		Discard:  true,
 	}.Connect(graph)
 	if err != nil {
 		return err
