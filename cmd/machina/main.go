@@ -48,6 +48,7 @@ func main() {
 		GenMAC     GenMACCmd     `kong:"cmd,name='gen-mac',help='Generate a random MAC hardware address.'"`
 		Args       ArgsCmd       `kong:"cmd,help='Displays the QEMU arguments for virtual machines.'"`
 		Run        RunCmd        `kong:"cmd,help='Run a virtual machine directly via QEMU.'"`
+		Version    VersionCmd    `kong:"cmd,help='Display machina version information.'"`
 	}
 
 	parser := kong.Must(&cli,
