@@ -84,18 +84,21 @@ func (h rawDiskHandler) Apply(spec VolumeSpec, t Target) error {
 
 	// Prepare the raw volume's file protocol block device
 	file, err := blockdev.File{
-		Name:         name.Child("file"),
-		Path:         blockdev.FilePath(spec.VolumePath()),
-		ReadOnly:     spec.Storage.ReadOnly,
-		Discard:      true,
-		DetectZeroes: blockdev.DetectZeroesUnmap,
+		Name:     name.Child("file"),
+		Path:     blockdev.FilePath(spec.VolumePath()),
+		ReadOnly: spec.Storage.ReadOnly,
+		Discard:  true,
 	}.Connect(graph)
 	if err != nil {
 		return err
 	}
 
 	// Prepare the raw volume's file protocol block device
-	format, err := blockdev.Raw{Name: name}.Connect(file)
+	format, err := blockdev.Raw{
+		Name:         name,
+		Discard:      true,
+		DetectZeroes: blockdev.DetectZeroesUnmap,
+	}.Connect(file)
 	if err != nil {
 		return err
 	}
