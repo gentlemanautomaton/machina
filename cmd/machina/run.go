@@ -37,7 +37,7 @@ func (cmd RunCmd) Run(ctx context.Context) (err error) {
 		return fmt.Errorf("failed to build configuration for \"%s\": %v", cmd.Machine, err)
 	}
 
-	if err := prepareMachine(machine.Info(), composed, sys); err != nil {
+	if err := prepareMachine(ctx, machine.Info(), composed, sys); err != nil {
 		return err
 	}
 

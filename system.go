@@ -15,7 +15,7 @@ type System struct {
 
 	// MediatedDevices is a list of mediated devices available on the host
 	// system.
-	MediatedDevices MediatedDeviceMap `json:"mdev,omitempty"`
+	MediatedDevices MediatedDeviceMap `json:"mediated-device,omitempty"`
 
 	// Tag defines tags available on the host system.
 	Tag TagMap `json:"tag,omitempty"`

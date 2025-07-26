@@ -1,11 +1,12 @@
 module github.com/gentlemanautomaton/machina
 
-go 1.24
+go 1.24.5
 
 require (
 	github.com/alecthomas/kong v1.9.0
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/fatih/color v1.18.0
+	github.com/gentlemanautomaton/lockfile v0.0.0-20250726032948-b0eb7f3fa444
 	github.com/gentlemanautomaton/systemdconf v0.0.0-20241210194348-76039ab42605
 	github.com/google/uuid v1.6.0
 	github.com/posener/complete v1.2.3

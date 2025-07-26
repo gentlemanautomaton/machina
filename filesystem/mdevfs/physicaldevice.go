@@ -1,6 +1,7 @@
 package mdevfs
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -39,6 +40,10 @@ func (pdev PhysicalDevice) Path() string {
 
 // Exists returns true if the sysfs path for the device exists.
 func (pdev PhysicalDevice) Exists() (bool, error) {
+	if pdev.address == "" {
+		return false, errors.New("the phyiscal device does not have an address")
+	}
+
 	fi, err := os.Stat(pdev.path)
 	if err != nil {
 		if os.IsNotExist(err) {

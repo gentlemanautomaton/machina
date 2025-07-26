@@ -16,6 +16,19 @@ func Supported() bool {
 	return true
 }
 
+func readSystemFile(sysfsPath string) (string, error) {
+	if !strings.HasPrefix(sysfsPath, "/sys/") {
+		return "", fmt.Errorf("invalid system file path: %s", sysfsPath)
+	}
+
+	data, err := os.ReadFile(sysfsPath)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSuffix(string(data), "\n"), nil
+}
+
 func writeToSystemFile(sysfsPath, value string) error {
 	if !strings.HasPrefix(sysfsPath, "/sys/") {
 		return fmt.Errorf("invalid system file path: %s", sysfsPath)
