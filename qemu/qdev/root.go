@@ -24,6 +24,7 @@ type Root struct {
 	chassis    int
 	buses      BusMap
 	downstream Device
+	hotplug    bool
 }
 
 // ID returns the bus identifier of the PCI Express Root Port device.
@@ -52,6 +53,11 @@ func (r Root) Properties() Properties {
 		{Name: "chassis", Value: strconv.Itoa(r.chassis)},
 		{Name: "bus", Value: "pcie.0"},
 		{Name: "addr", Value: r.addr.String()},
+	}
+	if r.hotplug {
+		props.Add("hotplug", "on")
+	} else {
+		props.Add("hotplug", "off")
 	}
 	if r.addr.Function == 0 {
 		props.Add("multifunction", "on")

@@ -38,7 +38,8 @@ type Topology struct {
 // An error is returned if the addition would cause the root complex to exceed
 // MaxRoots.
 //
-// TODO: Consider allowing the caller to supply a preferred bus address.
+// TODO: Consider allowing the caller to supply a preferred bus address or
+// hotplug setting.
 func (t *Topology) AddRoot() (*Root, error) {
 	index, err := t.allocate()
 	if err != nil {
