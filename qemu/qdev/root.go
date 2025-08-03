@@ -32,17 +32,10 @@ func (r Root) ID() ID {
 	return r.id
 }
 
-// Driver returns the driver for the PCI Express Root Port device, ioh3420.
-//
-// TODO: Consider using pcie-root-port instead.
-//
-// TODO: Find some sort of documentation for pcie-root-port, somewhere.
-// Anywhere. Any documentation at all would be really great.
-//
-// TODO: Find out why this patch wasn't merged:
-// https://patchwork.kernel.org/project/qemu-devel/patch/20170802155113.62471-1-marcel@redhat.com/
+// Driver returns the driver for the PCI Express Root Port device,
+// pcie-root-port.
 func (r Root) Driver() Driver {
-	return "ioh3420"
+	return "pcie-root-port"
 }
 
 // Properties returns the properties of the PCI Express Root Port device.
