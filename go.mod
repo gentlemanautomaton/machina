@@ -3,7 +3,7 @@ module github.com/gentlemanautomaton/machina
 go 1.26.0
 
 require (
-	github.com/alecthomas/kong v1.15.0
+	github.com/alecthomas/kong v1.16.0
 	github.com/coreos/go-systemd/v22 v22.7.0
 	github.com/fatih/color v1.19.0
 	github.com/gentlemanautomaton/lockfile v0.0.0-20250726032948-b0eb7f3fa444
@@ -12,7 +12,7 @@ require (
 	github.com/posener/complete v1.2.3
 	github.com/vishvananda/netlink v1.3.1
 	github.com/willabides/kongplete v0.4.0
-	golang.org/x/crypto v0.53.0
+	golang.org/x/crypto v0.54.0
 )
 
 require (
@@ -20,8 +20,8 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
-	github.com/mattn/go-isatty v0.0.22 // indirect
+	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab // indirect
 	github.com/vishvananda/netns v0.0.5 // indirect
-	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 )
