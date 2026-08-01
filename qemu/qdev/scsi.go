@@ -152,6 +152,11 @@ func (disk SCSIHD) Properties() Properties {
 		props.Add("wwn", disk.wwn.String())
 	}
 	if disk.serialNumber != "" {
+		if len(disk.serialNumber) > 20 {
+			props.Add("device_id", disk.serialNumber[:20])
+		} else {
+			props.Add("device_id", disk.serialNumber)
+		}
 		props.Add("serial", disk.serialNumber)
 	}
 	if disk.bootIndex > 0 {
