@@ -65,8 +65,10 @@ func (cmd GenerateCmd) Run(ctx context.Context) error {
 		)
 
 		var qemuBindToUnits []string
+		var tpmPartOfUnits []string
 		if tpms[i].Emulator.Enabled {
 			qemuBindToUnits = append(qemuBindToUnits, systemdgen.UnitNameForTPM(machines[i].Name)+".service")
+			tpmPartOfUnits = append(tpmPartOfUnits, systemdgen.UnitNameForQEMU(machines[i].Name)+".service")
 		}
 
 		var qemuBuf bytes.Buffer
@@ -76,7 +78,7 @@ func (cmd GenerateCmd) Run(ctx context.Context) error {
 		qemuUnits = append(qemuUnits, qemuBuf.String())
 
 		var tpmBuf bytes.Buffer
-		if _, err := systemdconf.WriteSections(&tpmBuf, systemdgen.BuildTPM(machines[i], tpmEmulatorOptions, tpmSetupOptions)...); err != nil {
+		if _, err := systemdconf.WriteSections(&tpmBuf, systemdgen.BuildTPM(machines[i], tpmEmulatorOptions, tpmSetupOptions, tpmPartOfUnits...)...); err != nil {
 			return fmt.Errorf("failed to prepare software TPM configuration for %s: %v", machines[i].Name, err)
 		}
 		tpmUnits = append(tpmUnits, tpmBuf.String())

@@ -3,6 +3,7 @@ package systemdgen
 import (
 	"fmt"
 	"path"
+	"slices"
 	"time"
 
 	"github.com/gentlemanautomaton/machina"
@@ -31,8 +32,8 @@ func BuildQEMU(machine machina.MachineInfo, opts qemu.Options, bindToUnits ...st
 	return []systemdconf.Section{
 		systemdconf.Unit{
 			Description:        fmt.Sprintf("machina qemu/kvm %s", machine.Name),
-			After:              append([]string{"network-online.target"}, bindToUnits...),
 			BindsTo:            bindToUnits,
+			After:              slices.Concat(bindToUnits, []string{"network-online.target"}),
 			Wants:              []string{"network-online.target"},
 			StartLimitInterval: time.Second * 210,
 			StartLimitBurst:    4,
