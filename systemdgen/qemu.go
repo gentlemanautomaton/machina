@@ -25,7 +25,7 @@ func UnitNameForQEMU(name machina.MachineName) string {
 // to the provided systemd units, and will start after them.
 func BuildQEMU(machine machina.MachineInfo, opts qemu.Options, bindToUnits ...string) []systemdconf.Section {
 	const (
-		serviceTimeout  = time.Second * 90
+		serviceTimeout  = time.Second * 150
 		shutdownTimeout = serviceTimeout - (time.Second * 5)
 	)
 	quotedName := QuoteArg(string(machine.Name))

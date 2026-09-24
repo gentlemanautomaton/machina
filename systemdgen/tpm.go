@@ -24,8 +24,7 @@ func UnitNameForTPM(name machina.MachineName) string {
 // emulator and setup options will be used in the unit's configuration.
 func BuildTPM(machine machina.MachineInfo, emulator swtpmemulator.Options, setup swtpmsetup.Options, partOfUnits ...string) []systemdconf.Section {
 	const (
-		serviceTimeout  = time.Second * 90
-		shutdownTimeout = serviceTimeout - (time.Second * 5)
+		serviceTimeout = time.Second * 150
 	)
 	quotedName := QuoteArg(string(machine.Name))
 	return []systemdconf.Section{
