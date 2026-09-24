@@ -31,8 +31,8 @@ func BuildTPM(machine machina.MachineInfo, emulator swtpmemulator.Options, setup
 	return []systemdconf.Section{
 		systemdconf.Unit{
 			Description:        fmt.Sprintf("machina swtpm %s", machine.Name),
-			StartLimitInterval: time.Minute,
-			StartLimitBurst:    2,
+			StartLimitInterval: time.Second * 210,
+			StartLimitBurst:    4,
 		},
 		systemdconf.Service{
 			Type: "simple",
@@ -42,7 +42,9 @@ func BuildTPM(machine machina.MachineInfo, emulator swtpmemulator.Options, setup
 			},
 			ExecStart:          []string{fmt.Sprintf("swtpm socket \\\n%s", QuoteOptions(emulator))},
 			TimeoutStop:        serviceTimeout,
-			RestartInterval:    time.Second * 10,
+			RestartDelay:       time.Second * 8,
+			RestartSteps:       4,
+			RestartMaxDelay:    time.Second * 48,
 			Restart:            unitvalue.RestartOnFailure,
 			RuntimeDirectories: []string{path.Join("machina", string(machine.Name), "swtpm")},
 		},

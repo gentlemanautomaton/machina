@@ -7,7 +7,7 @@ require (
 	github.com/coreos/go-systemd/v22 v22.7.0
 	github.com/fatih/color v1.19.0
 	github.com/gentlemanautomaton/lockfile v0.0.0-20260809013802-c4657448331c
-	github.com/gentlemanautomaton/systemdconf v0.0.0-20241210194348-76039ab42605
+	github.com/gentlemanautomaton/systemdconf v0.0.0-20260924003729-c684c2d17e30
 	github.com/google/uuid v1.6.0
 	github.com/posener/complete v1.2.3
 	github.com/vishvananda/netlink v1.3.1
