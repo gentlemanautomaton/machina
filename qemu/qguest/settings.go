@@ -10,6 +10,7 @@ type Settings struct {
 	Processor Processor
 	Memory    Memory
 	QMP       QMP
+	VNC       VNC
 	Spice     Spice
 	Globals   qemu.Globals
 }
@@ -36,6 +37,7 @@ func (s Settings) Options() qemu.Options {
 	opts = append(opts, s.Memory.Options()...)
 	opts = append(opts, s.Clock.Options()...)
 	opts = append(opts, s.QMP.Options()...)
+	opts = append(opts, s.VNC.Options()...)
 	opts = append(opts, s.Spice.Options()...)
 	opts = append(opts, s.Globals.Options()...)
 	opts.Add("boot", qemu.Parameters{

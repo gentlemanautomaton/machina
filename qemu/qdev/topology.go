@@ -59,18 +59,36 @@ func (t *Topology) AddRoot() (*Root, error) {
 	return root, nil
 }
 
-// AddQXL connects a PCI Express QXL display device to the PCI Express Root
-// Complex.
-func (t *Topology) AddQXL() (*QXL, error) {
+// AddVirtioVGA connects a PCI Express Virtio VGA display device to the
+// PCI Express Root Complex.
+func (t *Topology) AddVirtioVGA() (VGA, error) {
 	index, err := t.allocate()
 	if err != nil {
-		return nil, err
+		return VGA{}, err
+	}
+
+	const startingSlot = 1
+	addr := Addr{Slot: index/MaxMultifunctionDevices + startingSlot, Function: index % MaxMultifunctionDevices}
+	vga := VGA{
+		id:   t.buses.Allocate("vga"),
+		addr: addr,
+	}
+	t.devices = append(t.devices, vga)
+	return vga, nil
+}
+
+// AddQXL connects a PCI Express QXL display device to the PCI Express Root
+// Complex.
+func (t *Topology) AddQXL() (QXL, error) {
+	index, err := t.allocate()
+	if err != nil {
+		return QXL{}, err
 	}
 
 	const startingSlot = 1
 	addr := Addr{Slot: index/MaxMultifunctionDevices + startingSlot, Function: index % MaxMultifunctionDevices}
 	secondary := t.buses.Count("qxl") > 0
-	qxl := &QXL{
+	qxl := QXL{
 		id:        t.buses.Allocate("qxl"),
 		addr:      addr,
 		secondary: secondary,

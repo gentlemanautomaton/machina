@@ -28,7 +28,7 @@ func Build(m machina.Machine, sys machina.System) (qvm.Definition, error) {
 	if err := applyFirmware(m.Info(), def, sys.Storage, target); err != nil {
 		return qvm.Definition{}, err
 	}
-	if err := applyAttributes(m.Info(), def.Vars, def.Attributes, sys.Processor, target); err != nil {
+	if err := applyEarlyAttributes(m.Info(), def.Vars, def.Attributes, sys.Processor, target); err != nil {
 		return qvm.Definition{}, err
 	}
 	if err := applyVolumes(m.Info(), def.Vars, def.Volumes, sys.Storage, target); err != nil {
@@ -37,7 +37,13 @@ func Build(m machina.Machine, sys machina.System) (qvm.Definition, error) {
 	if err := applyConnections(m.Name, def.Connections, sys.Network, target); err != nil {
 		return qvm.Definition{}, err
 	}
+	if err := applyDisplay(def.Attributes, target); err != nil {
+		return qvm.Definition{}, err
+	}
 	if err := applyDevices(def.Devices, sys.MediatedDevices, target); err != nil {
+		return qvm.Definition{}, err
+	}
+	if err := applyLateAttributes(m.Info(), def.Vars, def.Attributes, sys.Processor, target); err != nil {
 		return qvm.Definition{}, err
 	}
 
@@ -58,7 +64,7 @@ func applyDefaults(vm *qvm.Definition) error {
 	return nil
 }
 
-func applyAttributes(machine machina.MachineInfo, vars machina.Vars, attrs machina.Attributes, processors machina.ProcessorMap, target Target) error {
+func applyEarlyAttributes(machine machina.MachineInfo, vars machina.Vars, attrs machina.Attributes, processors machina.ProcessorMap, target Target) error {
 	// Apply CPU attributes.
 	if err := applyCPU(attrs, processors, target); err != nil {
 		return err
@@ -81,6 +87,20 @@ func applyAttributes(machine machina.MachineInfo, vars machina.Vars, attrs machi
 
 	// Apply guest agent attributes.
 	if err := applyQEMUAgent(attrs.Agent.QEMU, vars, target); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func applyLateAttributes(machine machina.MachineInfo, vars machina.Vars, attrs machina.Attributes, processors machina.ProcessorMap, target Target) error {
+	// Apply remote protocol USB attributes.
+	if err := applyRemoteUSB(attrs, vars, target); err != nil {
+		return err
+	}
+
+	// Apply VNC protocol attributes.
+	if err := applyVNC(attrs.VNC, vars, target); err != nil {
 		return err
 	}
 

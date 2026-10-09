@@ -17,6 +17,7 @@ type Attributes struct {
 	TPM            TPM            `json:"tpm,omitempty"`
 	QMP            QMP            `json:"qmp,omitempty"`
 	Agent          Agent          `json:"agent,omitempty"`
+	VNC            VNC            `json:"vnc,omitempty"`
 	Spice          Spice          `json:"spice,omitempty"`
 }
 
@@ -29,6 +30,7 @@ func (a *Attributes) Config(info MachineInfo, vars Vars, out summary.Interface) 
 	a.TPM.Config(info, out)
 	a.QMP.Config(info, out)
 	a.Agent.Config(vars, out)
+	a.VNC.Config(vars, out)
 	a.Spice.Config(vars, out)
 }
 
@@ -44,6 +46,7 @@ func MergeAttributes(attrs ...Attributes) Attributes {
 		overlayTPM(&merged.TPM, &attrs[i].TPM)
 		overlayQMP(&merged.QMP, &attrs[i].QMP)
 		overlayAgent(&merged.Agent, &attrs[i].Agent)
+		overlayVNC(&merged.VNC, &attrs[i].VNC)
 		overlaySpice(&merged.Spice, &attrs[i].Spice)
 	}
 	return merged
@@ -331,6 +334,134 @@ func (qga *QEMUAgent) Config(vars Vars, out summary.Interface) {
 		out.Add("QEMU Guest Agent Port: %w", err)
 	} else if port > 0 {
 		out.Add("QEMU Guest Agent Port: %d", port)
+	}
+}
+
+// VNC describes the attributes of a machine's VNC protocol configuration.
+type VNC struct {
+	UnixSocket VNCUnixSocket `json:"unix-socket,omitempty"`
+	WebSocket  VNCWebSocket  `json:"websocket,omitempty"`
+	TCP        VNCTCP        `json:"tcp,omitempty"`
+}
+
+// Enabled returns true if the VNC protocol is enabled.
+func (vnc VNC) Enabled() bool {
+	return vnc.UnixSocket.Enabled || vnc.WebSocket.Enabled || vnc.TCP.Enabled
+}
+
+// Config adds the VNC configuration to the summary.
+func (vnc *VNC) Config(vars Vars, out summary.Interface) {
+	if !vnc.Enabled() {
+		return
+	}
+
+	out.Add("VNC Display: Enabled")
+
+	if vnc.UnixSocket.Enabled {
+		out.Add("VNC Unix Socket: Enabled")
+		out.Add("VNC Unix Socket Path: %s", vnc.UnixSocket.Path)
+	}
+
+	if vnc.WebSocket.Enabled {
+		out.Add("VNC WebSocket: Enabled")
+		if port, err := vnc.TCP.EffectivePort(vars); err != nil {
+			out.Add("VNC WebSocket Port: %w", err)
+		} else if port > 0 {
+			out.Add("VNC WebSocket Port: %d", port)
+		}
+	}
+
+	if vnc.TCP.Enabled {
+		out.Add("VNC TCP: Enabled")
+		if port, err := vnc.TCP.EffectivePort(vars); err != nil {
+			out.Add("VNC TCP Port: %w", err)
+		} else if port > 0 {
+			out.Add("VNC TCP Port: %d", port)
+		}
+	}
+}
+
+// VNCTCP describes the TCP connection attributes of a machine's VNC protocol
+// configuration.
+type VNCUnixSocket struct {
+	Enabled bool   `json:"enabled,omitempty"`
+	Path    string `json:"path,omitempty"`
+}
+
+// VNCWebsocket describes the websocket connection attributes of a machine's
+// VNC protocol configuration.
+type VNCWebSocket struct {
+	Enabled     bool        `json:"enabled,omitempty"`
+	Port        int         `json:"port,omitempty"`
+	PortPattern PortPattern `json:"port-pattern,omitempty"`
+}
+
+// EffectivePort returns the configured VNC websocket port, either through
+// explicit assignment or pattern expansion.
+func (ws VNCWebSocket) EffectivePort(vars Vars) (port int, err error) {
+	if ws.Port != 0 {
+		port = ws.Port
+	} else {
+		port, err = ws.PortPattern.Expand(vars.Map)
+		if err != nil {
+			return
+		}
+	}
+	if port < 0 {
+		return 0, fmt.Errorf("a negative port number was provided for the VNC websocket")
+	}
+	return
+}
+
+// VNCTCP describes the TCP connection attributes of a machine's VNC protocol
+// configuration.
+type VNCTCP struct {
+	Enabled     bool        `json:"enabled,omitempty"`
+	Port        int         `json:"port,omitempty"`
+	PortPattern PortPattern `json:"port-pattern,omitempty"`
+}
+
+// EffectivePort returns the configured VNC TCP port, either through explicit
+// assignment or pattern expansion.
+func (tcp VNCTCP) EffectivePort(vars Vars) (port int, err error) {
+	if tcp.Port != 0 {
+		port = tcp.Port
+	} else {
+		port, err = tcp.PortPattern.Expand(vars.Map)
+		if err != nil {
+			return
+		}
+	}
+	if port < 5900 {
+		return 0, fmt.Errorf("it is not possible to listen for VNC connections on ports lower than 5900 through QEMU's native VNC implementation")
+	}
+	return
+}
+
+func overlayVNC(merged, overlay *VNC) {
+	if overlay.UnixSocket.Enabled {
+		merged.UnixSocket.Enabled = true
+	}
+	if overlay.UnixSocket.Path != "" {
+		merged.UnixSocket.Path = overlay.UnixSocket.Path
+	}
+	if overlay.WebSocket.Enabled {
+		merged.WebSocket.Enabled = true
+	}
+	if overlay.WebSocket.Port > 0 {
+		merged.WebSocket.Port = overlay.WebSocket.Port
+	}
+	if overlay.WebSocket.PortPattern != "" {
+		merged.WebSocket.PortPattern = overlay.WebSocket.PortPattern
+	}
+	if overlay.TCP.Enabled {
+		merged.TCP.Enabled = true
+	}
+	if overlay.TCP.Port > 0 {
+		merged.TCP.Port = overlay.TCP.Port
+	}
+	if overlay.TCP.PortPattern != "" {
+		merged.TCP.PortPattern = overlay.TCP.PortPattern
 	}
 }
 

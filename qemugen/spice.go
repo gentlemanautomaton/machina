@@ -27,46 +27,6 @@ func applySpice(spice machina.Spice, vars machina.Vars, t Target) error {
 		DisableTicketing: true,
 	}
 
-	// Add a QXL display device.
-	{
-		// Specify the framebuffer size.
-		//
-		// See this email for definitions of these properties:
-		// https://lists.gnu.org/archive/html/qemu-devel/2012-06/msg01898.html
-		//
-		// Here are the defaults used by oVirt:
-		// https://www.ovirt.org/develop/internal/video-ram.html
-		//
-		// Here are the recommendations last put forward by the SPICE project
-		// itself:
-		// https://www.spice-space.org/multiple-monitors.html
-		//
-		// For now we set these according to the SPICE project's
-		// recommendations for Windows, which uses a separate device for each
-		// display.
-		var (
-			framebuffer = 16
-			barRegion1  = 64 // "ram"
-			barRegion2  = 8  // "vram"
-		)
-		t.VM.Settings.Globals.Add("qxl-vga", "vgamem_mb", strconv.Itoa(framebuffer))
-		t.VM.Settings.Globals.Add("qxl-vga", "ram_size_mb", strconv.Itoa(barRegion1))
-		t.VM.Settings.Globals.Add("qxl-vga", "vram_size_mb", strconv.Itoa(barRegion2))
-
-		// Add QXL display devices directly to the PCI Express root complex
-		displays := spice.Displays
-		if displays < 1 {
-			displays = 1
-		} else if displays > 4 {
-			displays = 4
-		}
-		for i := 0; i < displays; i++ {
-			if _, err := t.VM.Topology.AddQXL(); err != nil {
-				return err
-			}
-		}
-	}
-
 	// Grab a reference to the device registry for host characters devices.
 	registry := t.VM.Resources.CharDevs()
 
@@ -93,35 +53,84 @@ func applySpice(spice machina.Spice, vars machina.Vars, t Target) error {
 		}
 	}
 
-	// Add USB tablet and redirection devices.
-	{
-		const usbRedirChannels = 2
+	return nil
+}
 
-		// Add a USB Controller.
-		usb, err := t.Controllers.USB()
+func applySpiceDisplay(spice machina.Spice, t Target) error {
+	if !spice.Enabled {
+		return nil
+	}
+
+	// Specify the framebuffer size.
+	//
+	// See this email for definitions of these properties:
+	// https://lists.gnu.org/archive/html/qemu-devel/2012-06/msg01898.html
+	//
+	// Here are the defaults used by oVirt:
+	// https://www.ovirt.org/develop/internal/video-ram.html
+	//
+	// Here are the recommendations last put forward by the SPICE project
+	// itself:
+	// https://www.spice-space.org/multiple-monitors.html
+	//
+	// For now we set these according to the SPICE project's
+	// recommendations for Windows, which uses a separate device for each
+	// display.
+	var (
+		framebuffer = 16
+		barRegion1  = 64 // "ram"
+		barRegion2  = 8  // "vram"
+	)
+	t.VM.Settings.Globals.Add("qxl-vga", "vgamem_mb", strconv.Itoa(framebuffer))
+	t.VM.Settings.Globals.Add("qxl-vga", "ram_size_mb", strconv.Itoa(barRegion1))
+	t.VM.Settings.Globals.Add("qxl-vga", "vram_size_mb", strconv.Itoa(barRegion2))
+
+	// Add QXL display devices directly to the PCI Express root complex so
+	// that its VGA implementation is available to the system.
+	displays := spice.Displays
+	if displays < 1 {
+		displays = 1
+	} else if displays > 4 {
+		displays = 4
+	}
+	for i := 0; i < displays; i++ {
+		if _, err := t.VM.Topology.AddQXL(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func applySpiceUSB(spice machina.Spice, t Target) error {
+	if !spice.Enabled {
+		return nil
+	}
+
+	const usbRedirChannels = 2
+
+	// Grab a reference to the device registry for host characters devices.
+	registry := t.VM.Resources.CharDevs()
+
+	// Add a USB Controller.
+	usb, err := t.Controllers.USB()
+	if err != nil {
+		return err
+	}
+
+	// Add USB redirection channels and devices.
+	for i := 0; i < usbRedirChannels; i++ {
+		name := fmt.Sprintf("usbredir.%d", i)
+		channel, err := chardev.SpiceChannel{
+			ID:      chardev.ID(name),
+			Channel: chardev.SpiceChannelName("usbredir"),
+		}.AddTo(registry)
 		if err != nil {
 			return err
 		}
 
-		// Add a USB tablet.
-		if _, err := usb.AddTablet(); err != nil {
+		if _, err := usb.AddRedir(channel.ID()); err != nil {
 			return err
-		}
-
-		// Add a USB redirection channels and devices.
-		for i := 0; i < usbRedirChannels; i++ {
-			name := fmt.Sprintf("usbredir.%d", i)
-			channel, err := chardev.SpiceChannel{
-				ID:      chardev.ID(name),
-				Channel: chardev.SpiceChannelName("usbredir"),
-			}.AddTo(registry)
-			if err != nil {
-				return err
-			}
-
-			if _, err := usb.AddRedir(channel.ID()); err != nil {
-				return err
-			}
 		}
 	}
 
