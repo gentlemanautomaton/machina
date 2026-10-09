@@ -8,13 +8,14 @@ import (
 // https://github.com/qemu/qemu/blob/master/docs/pcie.txt
 
 const (
-	// MaxMultifunctionDevices is the maximum number of devices that can be
-	// addressed at a single PCI Express slot using multifunction addressing.
-	MaxMultifunctionDevices = 8
+	// MaxRootDevices is the maximum number of PCI Express devices that the
+	// root complex can accommodate.
+	MaxRootDevices = 32
 
-	// MaxRoots is the maximum number of PCI Express Root devices within a
-	// PCI Express Root Complex.
-	MaxRoots = 32 * MaxMultifunctionDevices
+	// MaxDeviceFunctions is the maximum number of device functions that can
+	// be addressed at a single PCI Express slot using multifunction
+	// addressing.
+	MaxDeviceFunctions = 8
 )
 
 // BusMap keeps track of index assignments for QEMU device buses.
@@ -51,6 +52,21 @@ func (m BusMap) Count(name string) int {
 type Addr struct {
 	Slot     int
 	Function int
+}
+
+// Next returns the next device function address after addr.
+func (addr Addr) Next() Addr {
+	addr.Function++
+	if addr.Function >= MaxDeviceFunctions {
+		addr.Slot++
+		addr.Function = 0
+	}
+	return addr
+}
+
+// IsZero returns true if the address slot and function are both zero.
+func (addr Addr) IsZero() bool {
+	return addr.Slot == 0 && addr.Function == 0
 }
 
 // String returns a string representation of the PCI address.

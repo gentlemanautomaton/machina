@@ -27,9 +27,11 @@ var (
 // TODO: Consider representing the PCI Express Root Complex with its own
 // struct.
 type Topology struct {
-	devices []Device
-	sata    int
-	buses   BusMap
+	devices   []Device
+	sata      int
+	buses     BusMap
+	nextAddr  Addr
+	nextIndex int
 }
 
 // AddRoot adds a new PCI Express Root Port device to the PCI Express Root
@@ -41,13 +43,11 @@ type Topology struct {
 // TODO: Consider allowing the caller to supply a preferred bus address or
 // hotplug setting.
 func (t *Topology) AddRoot() (*Root, error) {
-	index, err := t.allocate()
+	addr, index, err := t.allocate()
 	if err != nil {
 		return nil, err
 	}
 
-	const startingSlot = 1
-	addr := Addr{Slot: index/MaxMultifunctionDevices + startingSlot, Function: index % MaxMultifunctionDevices}
 	root := &Root{
 		id:      ID(fmt.Sprintf("pcie.%d.%d", addr.Slot, addr.Function)),
 		chassis: index,
@@ -62,31 +62,28 @@ func (t *Topology) AddRoot() (*Root, error) {
 // AddVirtioVGA connects a PCI Express Virtio VGA display device to the
 // PCI Express Root Complex.
 func (t *Topology) AddVirtioVGA() (VGA, error) {
-	index, err := t.allocate()
+	addr, _, err := t.allocate()
 	if err != nil {
 		return VGA{}, err
 	}
 
-	const startingSlot = 1
-	addr := Addr{Slot: index/MaxMultifunctionDevices + startingSlot, Function: index % MaxMultifunctionDevices}
 	vga := VGA{
 		id:   t.buses.Allocate("vga"),
 		addr: addr,
 	}
 	t.devices = append(t.devices, vga)
+
 	return vga, nil
 }
 
 // AddQXL connects a PCI Express QXL display device to the PCI Express Root
 // Complex.
 func (t *Topology) AddQXL() (QXL, error) {
-	index, err := t.allocate()
+	addr, _, err := t.allocate()
 	if err != nil {
 		return QXL{}, err
 	}
 
-	const startingSlot = 1
-	addr := Addr{Slot: index/MaxMultifunctionDevices + startingSlot, Function: index % MaxMultifunctionDevices}
 	secondary := t.buses.Count("qxl") > 0
 	qxl := QXL{
 		id:        t.buses.Allocate("qxl"),
@@ -94,24 +91,24 @@ func (t *Topology) AddQXL() (QXL, error) {
 		secondary: secondary,
 	}
 	t.devices = append(t.devices, qxl)
+
 	return qxl, nil
 }
 
 // AddPanic connects a paravirtualized panic device to the PCI Express Root
 // Complex as an integrated PCI device.
 func (t *Topology) AddPanic() (PVPanic, error) {
-	index, err := t.allocate()
+	addr, _, err := t.allocate()
 	if err != nil {
 		return PVPanic{}, err
 	}
 
-	const startingSlot = 1
-	addr := Addr{Slot: index/MaxMultifunctionDevices + startingSlot, Function: index % MaxMultifunctionDevices}
 	p := PVPanic{
 		id:   t.buses.Allocate("panic"),
 		addr: addr,
 	}
 	t.devices = append(t.devices, p)
+
 	return p, nil
 }
 
@@ -185,17 +182,32 @@ func (t *Topology) Options() qemu.Options {
 	return opts
 }
 
-func (t *Topology) allocate() (index int, err error) {
+func (t *Topology) allocate() (addr Addr, index int, err error) {
+	// Make sure the data structures have been initialized.
 	if t.devices == nil {
-		t.devices = make([]Device, 0, MaxRoots)
+		t.devices = make([]Device, 0, MaxRootDevices*MaxDeviceFunctions)
 	}
 	if t.buses == nil {
 		t.buses = make(BusMap)
 	}
 
-	if len(t.devices)+1 > MaxRoots {
-		return -1, ErrRootComplexFull
+	// The first PCI device address is dedicated to the memory controller host
+	// and platform, so it's not available. Start with address 1.0 instead.
+	if t.nextAddr.IsZero() {
+		t.nextAddr = Addr{Slot: 1, Function: 0}
 	}
 
-	return len(t.devices), nil
+	// Take the next address and index.
+	addr, index = t.nextAddr, t.nextIndex
+
+	// Make sure we don't exceed the root complex's device limit.
+	if addr.Slot > MaxRootDevices {
+		return Addr{}, 0, ErrRootComplexFull
+	}
+
+	// Increment the next address.
+	t.nextAddr = addr.Next()
+	t.nextIndex++
+
+	return
 }
