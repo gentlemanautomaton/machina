@@ -141,7 +141,7 @@ func (h rawDiskHandler) Apply(spec VolumeSpec, t Target) error {
 	case "block":
 		// Add a PCI Express Root device that we'll connect a Virtio Block
 		// device to.
-		root, err := t.VM.Topology.AddRoot()
+		root, err := t.VM.Topology.AddRootForRole(qdev.RoleBlockStorageDevice)
 		if err != nil {
 			return err
 		}
@@ -201,7 +201,7 @@ func (h vvfatDiskHandler) Apply(spec VolumeSpec, t Target) error {
 
 	// Add a PCI Express Root device that we'll connect a Virtio Block
 	// device to.
-	root, err := t.VM.Topology.AddRoot()
+	root, err := t.VM.Topology.AddRootForRole(qdev.RoleBlockStorageDevice)
 	if err != nil {
 		return err
 	}

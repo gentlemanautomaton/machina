@@ -45,7 +45,7 @@ func ExampleSCSI() {
 	}
 
 	// Add a PCI Express Root Port that we'll connect the SCSI Controller to
-	root, err := topo.AddRoot()
+	root, err := topo.AddRootForRole(qdev.RoleSCSIController)
 	if err != nil {
 		panic(err)
 	}

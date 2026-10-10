@@ -2,6 +2,7 @@ package qdev
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 )
 
@@ -9,8 +10,10 @@ import (
 
 const (
 	// MaxRootDevices is the maximum number of PCI Express devices that the
-	// root complex can accommodate.
-	MaxRootDevices = 32
+	// root complex can accommodate. The documentation implies that this
+	// should be 32, but in practice QEMU complains about any address with
+	// an ID of 20 or above.
+	MaxRootDevices = 20
 
 	// MaxDeviceFunctions is the maximum number of device functions that can
 	// be addressed at a single PCI Express slot using multifunction
@@ -48,6 +51,40 @@ func (m BusMap) Count(name string) int {
 	return m[name]
 }
 
+// AllocationSet keeps track of how many devices have been allocated for each
+// PCI Express device slot.
+type AllocationSet [MaxRootDevices]int
+
+// Add increments the slot device count for the address in the device
+// allocation set.
+func (set *AllocationSet) Add(addr Addr) {
+	set[addr.Slot]++
+}
+
+// ReservationMap holds address reservations for a PCI or PCIe bus.
+type ReservationMap map[Role][]int
+
+// Add records the given slot for the given role.
+func (rm ReservationMap) Add(role Role, slot int) {
+	slots := rm[role]
+	if !slices.Contains(slots, slot) {
+		slots = append(slots, slot)
+		slices.Sort(slots)
+		rm[role] = slots
+	}
+}
+
+// Role returns the role for the given slot's reservation, if it exists.
+// If there is no reservation for the role it returns an empty string.
+func (rm ReservationMap) Role(slot int) Role {
+	for role, slots := range rm {
+		if slices.Contains(slots, slot) {
+			return role
+		}
+	}
+	return ""
+}
+
 // Addr is an address on a PCI or PCIe bus.
 type Addr struct {
 	Slot     int
@@ -67,6 +104,11 @@ func (addr Addr) Next() Addr {
 // IsZero returns true if the address slot and function are both zero.
 func (addr Addr) IsZero() bool {
 	return addr.Slot == 0 && addr.Function == 0
+}
+
+// Chassis returns a unique chassis identifier based on the address.
+func (addr Addr) Chassis() int {
+	return addr.Slot*MaxDeviceFunctions + addr.Function
 }
 
 // String returns a string representation of the PCI address.

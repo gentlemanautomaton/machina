@@ -12,7 +12,7 @@ func ExampleUSB() {
 	var topo qdev.Topology
 
 	// Add a PCI Express Root Port that we'll connect the USB Controller to
-	root, err := topo.AddRoot()
+	root, err := topo.AddRootForRole(qdev.RoleUSBController)
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +60,7 @@ func ExampleUSBAttachedSCSI() {
 	}
 
 	// Add a PCI Express Root Port that we'll connect the USB Controller to
-	root, err := topo.AddRoot()
+	root, err := topo.AddRootForRole(qdev.RoleUSBController)
 	if err != nil {
 		panic(err)
 	}

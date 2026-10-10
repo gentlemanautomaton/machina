@@ -35,7 +35,7 @@ func (m *ControllerMap) Serial() (*Serial, error) {
 
 	// Add a PCI Express Root device that we'll connect the Serial
 	// Controller to
-	root, err := m.topo.AddRoot()
+	root, err := m.topo.AddRootForRole(RoleSerialController)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (m *ControllerMap) SCSI(iothread qhost.IOThread) (*SCSI, error) {
 	}
 
 	// Add a PCI Express Root device that we'll connect the SCSI Controller to
-	root, err := m.topo.AddRoot()
+	root, err := m.topo.AddRootForRole(RoleSCSIController)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (m *ControllerMap) USB() (*USB, error) {
 
 	// Add a PCI Express Root device that we'll connect the USB
 	// Controller to
-	root, err := m.topo.AddRoot()
+	root, err := m.topo.AddRootForRole(RoleUSBController)
 	if err != nil {
 		return nil, err
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gentlemanautomaton/machina"
+	"github.com/gentlemanautomaton/machina/qemu/qdev"
 	"github.com/gentlemanautomaton/machina/qemu/qhost"
 )
 
@@ -44,7 +45,7 @@ func applyConnections(machine machina.MachineName, conns []machina.Connection, n
 
 		// Add a PCI Express Root device that we'll connect a Network Controller
 		// to.
-		root, err := t.VM.Topology.AddRoot()
+		root, err := t.VM.Topology.AddRootForRole(qdev.RoleNetworkDevice)
 		if err != nil {
 			return err
 		}

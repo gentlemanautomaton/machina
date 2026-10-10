@@ -19,6 +19,23 @@ func Build(m machina.Machine, sys machina.System) (qvm.Definition, error) {
 	controllers := qdev.NewControllerMap(&vm.Topology)
 	target := Target{VM: &vm, Controllers: controllers, BootOrder: new(qdev.BootOrder)}
 
+	// Reserve PCI Express bus addresses for display controllers, network
+	// devices and SCSI Controllers. This helps to avoid bus address changes
+	// that can cause guests perceive unwanted hardware changes.
+	vm.Topology.Reserve(qdev.RoleDisplayDevice, 1)
+	vm.Topology.Reserve(qdev.RoleVFIODevice, 2)
+	vm.Topology.Reserve(qdev.RoleSerialController, 3)
+	vm.Topology.Reserve(qdev.RoleUSBController, 4)
+	vm.Topology.Reserve(qdev.RoleUSBController, 5)
+	vm.Topology.Reserve(qdev.RoleBlockStorageDevice, qdev.MaxRootDevices-8)
+	vm.Topology.Reserve(qdev.RoleBlockStorageDevice, qdev.MaxRootDevices-7)
+	vm.Topology.Reserve(qdev.RoleBlockStorageDevice, qdev.MaxRootDevices-6)
+	vm.Topology.Reserve(qdev.RoleBlockStorageDevice, qdev.MaxRootDevices-5)
+	vm.Topology.Reserve(qdev.RoleSCSIController, qdev.MaxRootDevices-4)
+	vm.Topology.Reserve(qdev.RoleSCSIController, qdev.MaxRootDevices-3)
+	vm.Topology.Reserve(qdev.RoleNetworkDevice, qdev.MaxRootDevices-2)
+	vm.Topology.Reserve(qdev.RoleNetworkDevice, qdev.MaxRootDevices-1)
+
 	if err := applyDefaults(&vm); err != nil {
 		return qvm.Definition{}, err
 	}
@@ -31,12 +48,6 @@ func Build(m machina.Machine, sys machina.System) (qvm.Definition, error) {
 	if err := applyEarlyAttributes(m.Info(), def.Vars, def.Attributes, sys.Processor, target); err != nil {
 		return qvm.Definition{}, err
 	}
-	if err := applyVolumes(m.Info(), def.Vars, def.Volumes, sys.Storage, target); err != nil {
-		return qvm.Definition{}, err
-	}
-	if err := applyConnections(m.Name, def.Connections, sys.Network, target); err != nil {
-		return qvm.Definition{}, err
-	}
 	if err := applyDisplay(def.Attributes, target); err != nil {
 		return qvm.Definition{}, err
 	}
@@ -44,6 +55,12 @@ func Build(m machina.Machine, sys machina.System) (qvm.Definition, error) {
 		return qvm.Definition{}, err
 	}
 	if err := applyLateAttributes(m.Info(), def.Vars, def.Attributes, sys.Processor, target); err != nil {
+		return qvm.Definition{}, err
+	}
+	if err := applyVolumes(m.Info(), def.Vars, def.Volumes, sys.Storage, target); err != nil {
+		return qvm.Definition{}, err
+	}
+	if err := applyConnections(m.Name, def.Connections, sys.Network, target); err != nil {
 		return qvm.Definition{}, err
 	}
 

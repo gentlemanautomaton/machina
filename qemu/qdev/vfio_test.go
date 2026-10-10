@@ -10,7 +10,7 @@ func ExampleVFIO() {
 	var topo qdev.Topology
 
 	// Add a PCI Express Root Port that we'll connect the device to
-	root, err := topo.AddRoot()
+	root, err := topo.AddRootForRole(qdev.RoleVFIODevice)
 	if err != nil {
 		panic(err)
 	}

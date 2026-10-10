@@ -20,7 +20,7 @@ func ExampleNetwork() {
 	}
 
 	// Add a PCI Express Root Port that we'll connect the Network Controller to
-	root, err := topo.AddRoot()
+	root, err := topo.AddRootForRole(qdev.RoleNetworkDevice)
 	if err != nil {
 		panic(err)
 	}

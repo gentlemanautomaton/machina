@@ -5,6 +5,7 @@ import (
 
 	"github.com/gentlemanautomaton/machina"
 	"github.com/gentlemanautomaton/machina/filesystem/sysfs"
+	"github.com/gentlemanautomaton/machina/qemu/qdev"
 	"github.com/gentlemanautomaton/machina/vmrand"
 )
 
@@ -32,7 +33,7 @@ func applyDevices(devs []machina.Device, mdevs machina.MediatedDeviceMap, t Targ
 
 		// Add a PCI Express Root device that we'll connect the mediated
 		// device to.
-		root, err := t.VM.Topology.AddRoot()
+		root, err := t.VM.Topology.AddRootForRole(qdev.RoleVFIODevice)
 		if err != nil {
 			return err
 		}

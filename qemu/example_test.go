@@ -3,6 +3,7 @@ package qemu_test
 import (
 	"fmt"
 
+	"github.com/gentlemanautomaton/machina/qemu/qdev"
 	"github.com/gentlemanautomaton/machina/qemu/qguest"
 	"github.com/gentlemanautomaton/machina/qemu/qhost"
 	"github.com/gentlemanautomaton/machina/qemu/qhost/blockdev"
@@ -40,7 +41,7 @@ func Example() {
 			panic(err)
 		}
 
-		root, err := vm.Topology.AddRoot()
+		root, err := vm.Topology.AddRootForRole(qdev.RoleNetworkDevice)
 		if err != nil {
 			panic(err)
 		}
@@ -79,7 +80,7 @@ func Example() {
 		}
 
 		// Add a root port for the SCSI controller
-		root, err := vm.Topology.AddRoot()
+		root, err := vm.Topology.AddRootForRole(qdev.RoleSCSIController)
 		if err != nil {
 			panic(err)
 		}
