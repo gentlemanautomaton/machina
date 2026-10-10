@@ -35,7 +35,7 @@ func ExampleUSB() {
 	}
 
 	// Output:
-	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=1.0,multifunction=on
+	// -device pcie-root-port,id=pcie.1.0,chassis=8,bus=pcie.0,addr=1.0,hotplug=off,multifunction=on
 	// -device qemu-xhci,id=usb,bus=pcie.1.0,p2=4,p3=4
 	// -device usb-tablet,id=usb.0.1,bus=usb.0,port=1
 }
@@ -90,7 +90,7 @@ func ExampleUSBAttachedSCSI() {
 
 	// Output:
 	// -blockdev driver=file,node-name=uas-disk,read-only=on,filename=uas-disk.iso
-	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=1.0,multifunction=on
+	// -device pcie-root-port,id=pcie.1.0,chassis=8,bus=pcie.0,addr=1.0,hotplug=off,multifunction=on
 	// -device qemu-xhci,id=usb,bus=pcie.1.0,p2=4,p3=4
 	// -device usb-uas,id=uas,bus=usb.0,port=1
 	// -device scsi-hd,id=uas.0.0,bus=uas.0,channel=0,scsi-id=0,lun=0,drive=uas-disk

@@ -27,6 +27,6 @@ func ExampleVFIO() {
 	}
 
 	// Output:
-	// -device ioh3420,id=pcie.1.0,chassis=0,bus=pcie.0,addr=1.0,multifunction=on
+	// -device pcie-root-port,id=pcie.1.0,chassis=8,bus=pcie.0,addr=1.0,hotplug=off,multifunction=on
 	// -device vfio-pci,id=vfio.0,bus=pcie.1.0,sysfsdev=/sys/bus/mdev/devices/79db70f1-92a5-4879-95f7-6325b66c1ff9
 }
