@@ -1,6 +1,6 @@
 module github.com/gentlemanautomaton/machina
 
-go 1.26.0
+go 1.27.3
 
 require (
 	github.com/alecthomas/kong v1.16.1
@@ -12,11 +12,11 @@ require (
 	github.com/posener/complete v1.2.3
 	github.com/vishvananda/netlink v1.3.1
 	github.com/willabides/kongplete v0.4.0
-	golang.org/x/crypto v0.57.0
+	golang.org/x/crypto v0.58.0
 )
 
 require (
-	github.com/godbus/dbus/v5 v5.2.2 // indirect
+	github.com/godbus/dbus/v5 v5.2.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/mattn/go-colorable v0.1.16 // indirect
