@@ -96,6 +96,7 @@ func (h rawDiskHandler) Apply(spec VolumeSpec, t Target) error {
 	// Prepare the volume's raw format block device
 	format, err := blockdev.Raw{
 		Name:         name,
+		ReadOnly:     spec.Storage.ReadOnly,
 		Discard:      true,
 		DetectZeroes: blockdev.DetectZeroesUnmap,
 	}.Connect(file)
@@ -380,6 +381,7 @@ func (h firmwareHandler) Apply(spec VolumeSpec, t Target) error {
 	// Prepare the volume's raw format block device
 	_, err = blockdev.Raw{
 		Name:         name,
+		ReadOnly:     spec.Storage.ReadOnly,
 		Discard:      true,
 		DetectZeroes: blockdev.DetectZeroesUnmap,
 	}.Connect(file)
