@@ -12,13 +12,17 @@ import (
 
 // Firmware holds firmware configuration for a QEMU virtual machine.
 type Firmware struct {
-	Code blockdev.NodeName
-	Vars blockdev.NodeName
+	Code       blockdev.NodeName
+	Vars       blockdev.NodeName
+	SecureBoot bool
 }
 
 // MachineParameters returns a set of machine parameters for the firmware.
 func (f Firmware) MachineParameters() qemu.Parameters {
 	var params qemu.Parameters
+	if f.SecureBoot {
+		params.Add("smm", "on")
+	}
 	if f.Code != "" {
 		params.Add("pflash0", string(f.Code))
 		if f.Vars != "" {

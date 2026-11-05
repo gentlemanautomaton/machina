@@ -54,8 +54,9 @@ func MergeAttributes(attrs ...Attributes) Attributes {
 
 // Firmware describes the attributes of a machine's firmware.
 type Firmware struct {
-	Code Volume `json:"code,omitempty"`
-	Vars Volume `json:"vars,omitempty"`
+	Code       Volume `json:"code,omitempty"`
+	Vars       Volume `json:"vars,omitempty"`
+	SecureBoot bool   `json:"secure-boot,omitempty"`
 }
 
 // Config adds the firmware configuration to the summary.
@@ -66,6 +67,11 @@ func (f *Firmware) Config(out summary.Interface) {
 	if !f.Vars.IsEmpty() {
 		out.Add("Firmware Variables (read/write): %s", f.Vars)
 	}
+	if !f.Code.IsEmpty() && f.SecureBoot {
+		out.Add("Secure Boot Support: On")
+	} else {
+		out.Add("Secure Boot Support: Off")
+	}
 }
 
 func overlayFirmware(merged, overlay *Firmware) {
@@ -74,6 +80,9 @@ func overlayFirmware(merged, overlay *Firmware) {
 	}
 	if !overlay.Vars.IsEmpty() {
 		merged.Vars = overlay.Vars
+	}
+	if overlay.SecureBoot {
+		merged.SecureBoot = true
 	}
 }
 

@@ -40,6 +40,7 @@ func applyFirmware(machine machina.MachineInfo, def machina.Definition, storage 
 		vols = append(vols, fw.Vars)
 	}
 
+	target.VM.Settings.Firmware.SecureBoot = fw.SecureBoot
 	target.VM.Settings.Globals.Add("cfi.pflash01", "secure", "on")
 	applyVolumes(machine, def.Vars, vols, storage, target)
 
