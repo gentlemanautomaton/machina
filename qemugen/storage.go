@@ -82,7 +82,7 @@ func (h rawDiskHandler) Apply(spec VolumeSpec, t Target) error {
 	// Produce a node name for the volume from the machine and volume name
 	name := h.NodeName(spec)
 
-	// Prepare the raw volume's file protocol block device
+	// Prepare the volume's file protocol block device
 	file, err := blockdev.File{
 		Name:     name.Child("file"),
 		Path:     blockdev.FilePath(spec.VolumePath()),
@@ -93,7 +93,7 @@ func (h rawDiskHandler) Apply(spec VolumeSpec, t Target) error {
 		return err
 	}
 
-	// Prepare the raw volume's file protocol block device
+	// Prepare the volume's raw format block device
 	format, err := blockdev.Raw{
 		Name:         name,
 		Discard:      true,
@@ -366,12 +366,23 @@ func (h firmwareHandler) Apply(spec VolumeSpec, t Target) error {
 	// Produce a node name for the firmware's backend block device
 	name := h.NodeName(spec)
 
-	// Prepare the firmware's file protocol block device
-	_, err := blockdev.File{
-		Name:     name,
+	// Prepare the volume's file protocol block device
+	file, err := blockdev.File{
+		Name:     name.Child("file"),
 		Path:     blockdev.FilePath(spec.VolumePath()),
 		ReadOnly: spec.Storage.ReadOnly,
+		Discard:  true,
 	}.Connect(graph)
+	if err != nil {
+		return err
+	}
+
+	// Prepare the volume's raw format block device
+	_, err = blockdev.Raw{
+		Name:         name,
+		Discard:      true,
+		DetectZeroes: blockdev.DetectZeroesUnmap,
+	}.Connect(file)
 	if err != nil {
 		return err
 	}
