@@ -1,9 +1,9 @@
 module github.com/gentlemanautomaton/machina
 
-go 1.27.3
+go 1.27.4
 
 require (
-	github.com/alecthomas/kong v1.16.1
+	github.com/alecthomas/kong v1.17.0
 	github.com/coreos/go-systemd/v22 v22.7.0
 	github.com/fatih/color v1.19.0
 	github.com/gentlemanautomaton/lockfile v0.0.0-20260809013802-c4657448331c
@@ -23,5 +23,5 @@ require (
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab // indirect
 	github.com/vishvananda/netns v0.0.5 // indirect
-	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 )
